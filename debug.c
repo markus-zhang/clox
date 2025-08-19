@@ -26,6 +26,10 @@ int disassembleInstruction(Chunk* chunk, int offset)
         {
             return simpleInstruction("OP_RETURN", offset);
         }
+        case OP_CONSTANT:
+        {
+            return constantInstruction("OP_CONSTANT", chunk, offset);
+        }
         default:
         {
             printf("Unknown opcode %d\n", instr);
@@ -38,4 +42,16 @@ static int simpleInstruction(const char* name, int offset)
 {
     printf("%s\n", name);
     return offset + 1;
+}
+
+static int constantInstruction(const char* name, Chunk* chunk, int offset)
+{
+    /* First byte is for OpCode and the second byte is the index of the constant, thus offset + 1 */
+    uint8_t constantIndex = chunk->code[offset + 1];
+    printf("%-16s %4d '", name, constantIndex);
+    /* Then we need to print the actual value */
+    printValue(chunk->constants.values[constantIndex]);
+    printf('\n');
+    /* 2 byte chunk */
+    return offset + 2;
 }
