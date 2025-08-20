@@ -12,10 +12,12 @@ int main(int argc, const char* argv[])
         Recall that addConstant returns the index of 1.2 in the array
     */
     int constantIndex = addConstant(&chunk, 1.2);
-    writeChunk(&chunk, OP_CONSTANT);
-    writeChunk(&chunk, constantIndex);
+    // 10 is just a random line number
+    writeChunk(&chunk, OP_CONSTANT, 10, 0);
+    writeChunk(&chunk, constantIndex, 10, 0);
 
-    writeChunk(&chunk, OP_RETURN);
+    // 11 is just a random line number
+    writeChunk(&chunk, OP_RETURN, 11, 0);
     disassembleChunk(&chunk, "test chunk");
     freeChunk(&chunk);
     return 0;

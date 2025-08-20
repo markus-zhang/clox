@@ -18,6 +18,9 @@ void disassembleChunk(Chunk* chunk, const char* name)
 int disassembleInstruction(Chunk* chunk, int offset)
 {
     printf("Offset -> %04d ", offset);
+    /* Print line number and  pos */
+    printf("Line %4d - Pos %4d ", chunk->line, chunk->pos);
+
     uint8_t instr = chunk->code[offset];
 
     switch(instr)
@@ -48,10 +51,10 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset)
 {
     /* First byte is for OpCode and the second byte is the index of the constant, thus offset + 1 */
     uint8_t constantIndex = chunk->code[offset + 1];
-    printf("%-16s %4d '", name, constantIndex);
+    printf("%-16s Index %4d -> '", name, constantIndex);
     /* Then we need to print the actual value */
     printValue(chunk->constants.values[constantIndex]);
-    printf('\n');
+    printf("'\n");
     /* 2 byte chunk */
     return offset + 2;
 }

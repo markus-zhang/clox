@@ -8,6 +8,8 @@ void initChunk(Chunk* chunk)
 {
     chunk->count = 0;
     chunk->capacity = 0;
+    chunk->line = 0;
+    chunk->pos = 0;
     chunk->code = NULL;
     initValueArray(&(chunk->constants));
 }
@@ -17,7 +19,7 @@ void initChunk(Chunk* chunk)
     If there is enough capacity, insert
     If capacity is not enough, grow
 */
-void writeChunk(Chunk* chunk, uint8_t byte)
+void writeChunk(Chunk* chunk, uint8_t byte, int line, int pos)
 {
     if (chunk->count == chunk->capacity)
     {
@@ -27,6 +29,8 @@ void writeChunk(Chunk* chunk, uint8_t byte)
     }
 
     chunk->code[chunk->count] = byte;
+    chunk->line = line;
+    chunk->pos = pos;
     chunk->count++;
 }
 
