@@ -34,6 +34,33 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line, int pos)
     chunk->count++;
 }
 
+void writeConstant(Chunk* chunk, Value value, int line, int pos)
+{
+    /*
+        Write OP_CONSTANT + constantIndex into chunk, if constantIndex <= 0xFF, or OP_CONSTANT_LONG + constantIndex into chunk, if constantIndex > 0xFF && constantIndex <= 0xFFFFFF.
+
+        Panic if constantIndex > 0xFFFFFF
+    */
+    
+    int constantIndex = addConstant(chunk, value);
+    // FIXME: change to 0xFF
+    if (constantIndex <= 0x01)
+    {
+        /* We only need OP_CONSTANT */
+        writeChunk(chunk, OP_CONSTANT, line, pos);
+        writeChunk(chunk, constantIndex, line, pos);
+    }
+    else if (constantIndex <= 0xFFFFFF)
+    {
+        /* We need OP_CONSTANT_LONG */
+        writeChunk(chunk, OP_CONSTANT_LONG, line, pos);
+        // TODO: Write 3 bytes one by one, Top byte - Middle byte - Low byte for now
+        writeChunk(chunk, (uint8_t)(constantIndex >> 16), line, pos);
+        writeChunk(chunk, (uint8_t)(constantIndex >> 8), line, pos);
+        writeChunk(chunk, (uint8_t)(constantIndex >> 0), line, pos);
+    }
+}
+
 /*
     Also return the index of the Value for easy indexing
 */

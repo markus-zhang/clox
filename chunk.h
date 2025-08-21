@@ -7,7 +7,14 @@
 /* Enumeration of all opcodes */
 typedef enum
 {
+    /* 1 byte OpCode + 1 byte OpRand -> Maxium 0xFF entries */
     OP_CONSTANT,
+    /* 
+        See Challenge 2 - 24-bit number -> Maximum 0xFFFFFF entries 
+        FIXME: We will use big endian for now but may change later:
+        OP_CONSTANT_LONG - Top byte - Middle byte - Low byte
+    */
+    OP_CONSTANT_LONG,
     OP_RETURN,
 } Opcode;
 
@@ -33,6 +40,8 @@ void initChunk(Chunk* chunk);
     I also add offset which is not in the book
 */
 void writeChunk(Chunk* chunk, uint8_t byte, int line, int pos);
+
+void writeConstant(Chunk* chunk, Value value, int line, int pos);
 
 /* Convenient function exposed to users to write a constant */
 int addConstant(Chunk* chunk, Value value);

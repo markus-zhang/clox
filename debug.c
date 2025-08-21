@@ -33,6 +33,10 @@ int disassembleInstruction(Chunk* chunk, int offset)
         {
             return constantInstruction("OP_CONSTANT", chunk, offset);
         }
+        case OP_CONSTANT_LONG:
+        {
+            return constantLongInstruction("OP_CONSTANT_LONG", chunk, offset);
+        }
         default:
         {
             printf("Unknown opcode %d\n", instr);
@@ -57,4 +61,19 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset)
     printf("'\n");
     /* 2 byte chunk */
     return offset + 2;
+}
+
+static int constantLongInstruction(const char* name, Chunk* chunk, int offset)
+{
+    /*
+        First byte is OpCode and the following three are High/Middle/Low byte of the index
+    */
+    
+    int constantIndex = (chunk->code[offset + 1] << 16) + (chunk->code[offset + 2] << 8) + chunk->code[offset + 3];
+
+    printf("%-16s Index %4d -> '", name, constantIndex);
+    printValue(chunk->constants.values[constantIndex]);
+    printf("'\n");
+    /* 4 byte chunk */
+    return offset + 4;
 }
