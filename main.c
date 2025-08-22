@@ -1,9 +1,12 @@
 #include "common.h"
 #include "chunk.h"
 #include "debug.h"
+#include "vm.h"
 
 int main(int argc, const char* argv[])
 {
+    initVM();
+
     Chunk chunk;
     initChunk(&chunk);
 
@@ -24,6 +27,13 @@ int main(int argc, const char* argv[])
     // 11 is just a random line number
     writeChunk(&chunk, OP_RETURN, 11, 0);
     disassembleChunk(&chunk, "test chunk");
+
+    /* Run VM */
+    interpret(&chunk);
+
+    /* Dial down all resources */
+    freeVM();
     freeChunk(&chunk);
+
     return 0;
 }

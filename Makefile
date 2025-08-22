@@ -1,5 +1,5 @@
 # defining the object files for this application
-OBJS = main.c chunk.c debug.c memory.c value.c
+OBJS = main.c chunk.c debug.c memory.c value.c vm.c
 
 # define the executables
 EXE = clox
