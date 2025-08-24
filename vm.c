@@ -1,6 +1,7 @@
 #include "common.h"
 #include "debug.h"
 #include "vm.h"
+#include <stdlib.h>
 
 /* Global variable just to keep simple */
 VM vm;
@@ -27,12 +28,12 @@ InterpreterResult interpret(Chunk* chunk)
 */
 static InterpreterResult run()
 {
-#ifdef DEBUG_TRACE_EXECUTION
-    /* NOTE: second argument is the offset */
-    disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
-#endif
     while (1)
     {
+        #ifdef DEBUG_TRACE_EXECUTION
+            /* NOTE: second argument is the offset */
+            disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
+        #endif
         /* NOTE: Always point ip to the next byte */
         switch(*(vm.ip++))
         {
@@ -46,17 +47,25 @@ static InterpreterResult run()
             case OP_CONSTANT:
             {
                 int constantIndex = *(vm.ip++);
+                printf("OP_CONSTANT: Index %d\n", constantIndex);
                 printValue(vm.chunk->constants.values[constantIndex]);
                 printf("\n");
-                push(constantIndex);
+                push((vm.chunk->constants.values)[constantIndex]);
                 break;
             }
             case OP_CONSTANT_LONG:
             {
-                int constantIndex = (vm.chunk->code[*(vm.ip)] << 16) + (vm.chunk->code[*(vm.ip) + 1] << 8) + vm.chunk->code[*(vm.ip) + 2];
+                int constantIndex = (*(vm.ip) << 16) + (*(vm.ip + 1) << 8) + *(vm.ip + 2);
+                printf("OP_CONSTANT_LONG: Index %d\n", constantIndex);
                 printValue(vm.chunk->constants.values[constantIndex]);
                 printf("\n");
-                push(constantIndex);
+                push((vm.chunk->constants.values)[constantIndex]);
+                vm.ip += 3;
+                break;
+            }
+            case OP_NEGATE:
+            {
+                push(-pop());
                 break;
             }
         }

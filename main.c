@@ -2,6 +2,7 @@
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
+#include <stdlib.h>
 
 int main(int argc, const char* argv[])
 {
@@ -23,13 +24,16 @@ int main(int argc, const char* argv[])
     writeConstant(&chunk, 1.2, 10, 0);
     writeConstant(&chunk, 100.08, 10, 2);
     writeConstant(&chunk, 999, 10, 20);
+    writeChunk(&chunk, OP_NEGATE, 22, 0);
+    // exit(0);
 
     // 11 is just a random line number
     writeChunk(&chunk, OP_RETURN, 11, 0);
-    disassembleChunk(&chunk, "test chunk");
+    // disassembleChunk(&chunk, "test chunk");
 
     /* Run VM */
     interpret(&chunk);
+    DumpStack(DUMP_CONSOLE);
 
     /* Dial down all resources */
     freeVM();

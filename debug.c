@@ -13,6 +13,8 @@ void disassembleChunk(Chunk* chunk, const char* name)
     {
         offset = disassembleInstruction(chunk, offset);
     }
+
+    printf("Done disassembling\n");
 }
 
 int disassembleInstruction(Chunk* chunk, int offset)
@@ -36,6 +38,10 @@ int disassembleInstruction(Chunk* chunk, int offset)
         case OP_CONSTANT_LONG:
         {
             return constantLongInstruction("OP_CONSTANT_LONG", chunk, offset);
+        }
+        case OP_NEGATE:
+        {
+            return simpleInstruction("OP_NEGATE", offset);
         }
         default:
         {
