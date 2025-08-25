@@ -25,7 +25,12 @@ int main(int argc, const char* argv[])
     writeConstant(&chunk, 100.08, 10, 2);
     writeConstant(&chunk, 999, 10, 20);
     writeChunk(&chunk, OP_NEGATE, 22, 0);
-    // exit(0);
+    /* Test Binary OpCodes */
+    writeChunk(&chunk, OP_ADD, 23, 0);
+    writeChunk(&chunk, OP_SUB, 24, 0);
+    // This should panic
+    // writeChunk(&chunk, OP_MUL, 24, 0);
+
 
     // 11 is just a random line number
     writeChunk(&chunk, OP_RETURN, 11, 0);
@@ -33,7 +38,7 @@ int main(int argc, const char* argv[])
 
     /* Run VM */
     interpret(&chunk);
-    DumpStack(DUMP_CONSOLE);
+    // DumpStack(DUMP_CONSOLE);
 
     /* Dial down all resources */
     freeVM();

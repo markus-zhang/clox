@@ -43,6 +43,22 @@ int disassembleInstruction(Chunk* chunk, int offset)
         {
             return simpleInstruction("OP_NEGATE", offset);
         }
+        case OP_ADD:
+        {
+            return binaryInstruction("OP_ADD", chunk, offset);
+        }
+        case OP_SUB:
+        {
+            return binaryInstruction("OP_SUB", chunk, offset);
+        }
+        case OP_MUL:
+        {
+            return binaryInstruction("OP_MUL", chunk, offset);
+        }
+        case OP_DIV:
+        {
+            return binaryInstruction("OP_DIV", chunk, offset);
+        }
         default:
         {
             printf("Unknown opcode %d\n", instr);
@@ -82,4 +98,10 @@ static int constantLongInstruction(const char* name, Chunk* chunk, int offset)
     printf("'\n");
     /* 4 byte chunk */
     return offset + 4;
+}
+
+static int binaryInstruction(const char* name, Chunk* chunk, int offset)
+{
+    printf("%s\n", name);
+    return offset + 1;
 }

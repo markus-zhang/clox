@@ -40,7 +40,8 @@ static InterpreterResult run()
             case OP_RETURN:
             {
                 /* NOTE: Temp pop and print, will change later */
-                printValue(pop());
+                // printValue(pop());
+                DumpStack(DUMP_CONSOLE);
                 printf("\n");
                 return INTERPRET_OK;
             }
@@ -63,9 +64,21 @@ static InterpreterResult run()
                 vm.ip += 3;
                 break;
             }
+            /* Unary */
             case OP_NEGATE:
             {
-                push(-pop());
+                /* No need to push/pop, just mutate */
+                // push(-pop());
+                *(vm.stackTop - 1) = (*vm.stackTop - 1) * -1;
+                break;
+            }
+            /* Binary */
+            case OP_ADD:
+            case OP_SUB:
+            case OP_MUL:
+            case OP_DIV:
+            {
+                BinaryOP(OP_ADD);
                 break;
             }
         }
@@ -86,7 +99,53 @@ Value pop()
 {
     /* Note: It's OK to reduce stackTop first, because it is always pointing to the next available index */
     vm.stackTop --;
+    if (vm.stackTop < vm.stack)
+    {
+        /* Stack underflow */
+        panic("pop(): Stack Underflow!\n");
+    }
     return *(vm.stackTop);
+}
+
+Value peek()
+{
+    /* Note: Fetch top stack item without removing it */
+    return *(vm.stackTop);
+}
+
+/* Operations */
+static void BinaryOP(Opcode op)
+{
+    Value leftOperand = pop();
+    Value rightOperand = pop();
+    
+    switch(op)
+    {
+        case (OP_ADD):
+        {
+            push(leftOperand + rightOperand);
+            break;
+        }
+        case (OP_SUB):
+        {
+            push(leftOperand - rightOperand);
+            break;
+        }
+        case (OP_MUL):
+        {
+            push(leftOperand * rightOperand);
+            break;
+        }
+        case (OP_DIV):
+        {
+            push(leftOperand / rightOperand);
+            break;
+        }
+        default:
+        {
+            printf("Unknown Binary OpCode %d\n", op);
+        }
+    }
 }
 
 void panic(char* panicMessage)

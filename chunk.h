@@ -15,7 +15,14 @@ typedef enum
         OP_CONSTANT_LONG - Top byte - Middle byte - Low byte
     */
     OP_CONSTANT_LONG,
+    /* Unary */
     OP_NEGATE,
+    /* Binary */
+    OP_ADD,
+    OP_SUB,
+    OP_MUL,
+    OP_DIV,
+    
     OP_RETURN,
 } Opcode;
 

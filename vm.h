@@ -33,6 +33,10 @@ InterpreterResult interpret(Chunk* chunk);
 static InterpreterResult run();
 void push(Value value);
 Value pop();
+Value peek();
+
+/* Operations */
+static void BinaryOP(Opcode op);
 
 /* Like a kernel panic */
 void panic(char* panicMessage);
