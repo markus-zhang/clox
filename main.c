@@ -8,16 +8,23 @@
 
 void repl();
 void runFile(const char* filename);
+static void interpretCode(char* buffer);
 void test(Chunk* chunk);
 bool containBackSlash(char* line, int maxLength);
-static void removeNewLine(char* line);
-void hang();
+static void removeTrailingBackSlash(char* line);
+static void combineMultipleLine(char* target, char source[16][1024], int lineCount);
+
+/* Global variables */
+/* Buffer that contains the whole clox script */
+char* cloxCodeBuffer;
 
 int main(int argc, const char* argv[])
 {
     initVM();
     Chunk chunk;
     initChunk(&chunk);
+
+    cloxCodeBuffer = NULL;
 
     if (argc == 1)
     {
@@ -108,6 +115,7 @@ void repl()
             }
             else
             {
+                removeTrailingBackSlash(input[lineIndex]);
                 lineIndex++;
             }
         }
@@ -117,17 +125,21 @@ void repl()
             printf("Line %d: %s", i, input[i]);
         }
 
-        /* Just hang */
-        hang();
+        combineMultipleLine(cloxCodeBuffer, input, lineIndex);
+
+        // interpretCode();
     }
 }
 
 void runFile(const char* filename)
 {
+    /*
+
+    */
     return;
 }
 
-void hang()
+static void interpretCode(char* buffer)
 {
     /* Just hang */
     while(1) {}
@@ -155,7 +167,7 @@ bool containBackSlash(char* line, int maxLength)
     return false;
 }
 
-static void removeTrailingChar(char* line)
+static void removeTrailingBackSlash(char* line)
 {
     /* Lop off the trailing <newline> and '\' */
     int lineLength = strlen(line);
@@ -169,4 +181,43 @@ static void removeTrailingChar(char* line)
         line[lineLength - 2] = '\n';
         line[lineLength - 1] = '\0';
     }
+}
+
+static void combineMultipleLine(char* target, char source[16][1024], int lineCount)
+{
+    /*
+        Combine all (`lineCount` + 1) lines in `source` into `target`.
+        Please call removeTrailingBackSlash() on each line before calling this
+    */
+    
+    /* target should be NULL */
+    if (target)
+    {
+        free(target);
+        target = NULL;
+    }
+
+    int totalSize = 0;
+
+    /* Figure out total size */
+    for (int i = 0; i <= lineCount; i++)
+    {
+        /* strlen() does NOT count the trailing '\0' */
+        totalSize += strlen(source[lineCount]);
+    }
+    /* Space for `\'0` */
+    totalSize += 1;
+    
+    int charCount = 0;
+    target = malloc(totalSize * sizeof(char));
+    char* targetWalker = target;
+
+    for (int i = 0; i <= lineCount; i++)
+    {
+        int lineLength = strlen(source[i]);
+        strncat(target, source[i], lineLength);
+    }
+
+    /* Debug */
+    printf("%s -> %s(): %s\n", __FILE__, __func__, target);
 }
