@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 void repl();
 void runFile(const char* filename);
@@ -134,8 +136,22 @@ void repl()
 void runFile(const char* filename)
 {
     /*
-
+        Load string stored in a script file into cloxCodeBuffer
     */
+    int fd = open(filename, O_RDONLY);
+    int fileSize = lseek(fd, 0, SEEK_END);
+    lseek(fd, 0, SEEK_SET);
+
+    cloxCodeBuffer = malloc(fileSize + 1);
+    if (read(fd, cloxCodeBuffer, fileSize) == -1)
+    {
+        panic("Failed to read script file into buffer!\n");
+    }
+
+    cloxCodeBuffer[fileSize] = '\0';
+    /* Debugging */
+    printf("%s\n", cloxCodeBuffer);
+
     return;
 }
 

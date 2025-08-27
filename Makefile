@@ -16,6 +16,10 @@ clean:
 run: clean $(EXE)
 	./$(EXE)
 
+# runs app with arg
+run_file: clean $(EXE)
+	./$(EXE) ./test
+
 ########## For HPC project ############
 
 # defining the object files for this application
