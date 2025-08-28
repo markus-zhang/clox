@@ -152,6 +152,8 @@ void runFile(const char* filename)
     /* Debugging */
     printf("%s\n", cloxCodeBuffer);
 
+    close(fd);
+
     return;
 }
 
