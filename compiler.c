@@ -12,5 +12,9 @@ void compile(const char* source)
     {
         Token t = scanToken();
         dumpToken(t);
+        if (t.type == TOKEN_EOF)
+        {
+            break;
+        }
     }
 }

@@ -25,6 +25,10 @@ void initScanner(const char* source)
 
 Token scanToken()
 {
+    /* Update state for WhiteSpaces and NewLines */
+    processNLWSC();
+
+    /* At this point, current points to the first non-wsnl char */
     scanner.start = scanner.current;
 
     if (isAtEnd())
@@ -35,18 +39,6 @@ Token scanToken()
     char firstChar = (char)(*(scanner.current++));
     switch (firstChar)
     {
-        case '\n':
-        {
-            /* We need to update state */
-            scanner.line ++;
-            scanner.offset = 0;
-            return makeToken(TOKEN_DUMMY);
-        }
-        case ' ':
-        case '\t':
-        {
-            
-        }
         case '(':
         {
             return makeToken(TOKEN_LEFT_PAREN);
@@ -91,6 +83,11 @@ Token scanToken()
         {
             return makeToken(TOKEN_STAR);
         }
+        case '"':
+        {
+            /* TODO: Scan strings */
+            break;
+        }
         default:
         {
             /* TODO: Think how do we architecture the codebase so that we can call panic() here */
@@ -114,6 +111,53 @@ Token makeToken(TokenType type)
 bool isAtEnd()
 {
     return (*(scanner.current) == '\0');
+}
+
+/* Dealing with newline, whitespaces and comments */
+void processNLWSC()
+{
+    char currentChar = *(scanner.current);
+    while (1)
+    {
+        switch (currentChar)
+        {
+            case '\n':
+            {
+                scanner.line ++;
+                scanner.offset = 0;
+                scanner.current ++;
+                break;
+            }
+            case ' ':
+            case '\r':
+            case '\t':
+            {
+                scanner.offset ++;
+                scanner.current ++;
+                break;
+            }
+            case '/':
+            {
+                if (peek() == '/')
+                {
+                    /* Skip to the next line */
+                    while (*(scanner.current) != '\n' && isAtEnd())
+                    {
+                        scanner.current ++;
+                    }
+                    /* Now current points to '\n' which will be dealt by next loop */
+                }
+                break;
+            }
+        }
+    }
+}
+
+/* Return the next char without moving the current pointer */
+
+char peek()
+{
+    return *(scanner.current + 1);
 }
 
 void dumpToken(Token t)

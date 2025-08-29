@@ -61,7 +61,16 @@ void initScanner(const char* source);
 Token scanToken();
 Token makeToken(TokenType type);
 
+/* Dealing with EOF */
 bool isAtEnd();
+
+/* 
+    Dealing with newline, whitespaces and comments
+    NOTE: You have to use one function to deal with both,
+    otherwise things like <WH><NL><WH> is going to break
+*/
+void processNLWSC();
+char peek();
 
 /* Debugging */
 void dumpToken(Token t);

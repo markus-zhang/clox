@@ -2,6 +2,7 @@
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
+#include "compiler.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -130,6 +131,7 @@ void repl()
         combineMultipleLine(cloxCodeBuffer, input, lineIndex);
 
         // interpretCode();
+        compile(cloxCodeBuffer);
     }
 }
 
