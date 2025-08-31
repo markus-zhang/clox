@@ -1,5 +1,5 @@
 # defining the object files for this application
-OBJS = main.c chunk.c debug.c memory.c value.c vm.c
+OBJS = main.c chunk.c debug.c memory.c value.c vm.c scanner.c compiler.c
 
 # define the executables
 EXE = clox
@@ -7,6 +7,9 @@ EXE = clox
 # the final build step
 $(EXE): $(OBJS)
 	gcc -o $(EXE) $(OBJS)
+
+# dedicated build step (compiles only)
+build: $(EXE)
 
 # cleaning the build
 clean:

@@ -15,7 +15,7 @@ static void interpretCode(char* buffer);
 void test(Chunk* chunk);
 bool containBackSlash(char* line, int maxLength);
 static void removeTrailingBackSlash(char* line);
-static void combineMultipleLine(char* target, char source[16][1024], int lineCount);
+static char* combineMultipleLine(char* target, char source[16][1024], int lineCount);
 
 /* Global variables */
 /* Buffer that contains the whole clox script */
@@ -108,7 +108,7 @@ void repl()
         int lineIndex = 0;  // which line?
         int lineOffset = 0; // which offset in the line?
 
-        printf("> ");
+        printf("clox> ");
         while (fgets(input[lineIndex], 1024, stdin) != NULL)
         {
             // If no \ char at the end, just break
@@ -128,7 +128,7 @@ void repl()
             printf("Line %d: %s", i, input[i]);
         }
 
-        combineMultipleLine(cloxCodeBuffer, input, lineIndex);
+        cloxCodeBuffer = combineMultipleLine(cloxCodeBuffer, input, lineIndex);
 
         // interpretCode();
         compile(cloxCodeBuffer);
@@ -203,7 +203,7 @@ static void removeTrailingBackSlash(char* line)
     }
 }
 
-static void combineMultipleLine(char* target, char source[16][1024], int lineCount)
+static char* combineMultipleLine(char* target, char source[16][1024], int lineCount)
 {
     /*
         Combine all (`lineCount` + 1) lines in `source` into `target`.
@@ -240,4 +240,5 @@ static void combineMultipleLine(char* target, char source[16][1024], int lineCou
 
     /* Debug */
     printf("%s -> %s(): %s\n", __FILE__, __func__, target);
+    return target;
 }

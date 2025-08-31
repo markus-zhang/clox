@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "scanner.h"
@@ -15,6 +16,29 @@ typedef struct
 Scanner scanner;
 bool inString = false;
 
+const char* TokenTypeName[] = {
+    /* Single-character tokens */
+    "TOKEN_LEFT_PAREN", "TOKEN_RIGHT_PAREN",
+    "TOKEN_LEFT_BRACE", "TOKEN_RIGHT_BRACE",
+    "TOKEN_COMMA", "TOKEN_DOT", "TOKEN_MINUS", "TOKEN_PLUS",
+    "TOKEN_SEMICOLON", "TOKEN_SLASH", "TOKEN_STAR",
+
+    // One or two character tokens.
+    "TOKEN_BANG", "TOKEN_BANG_EQUAL",
+    "TOKEN_EQUAL", "TOKEN_EQUAL_EQUAL",
+    "TOKEN_GREATER", "TOKEN_GREATER_EQUAL",
+    "TOKEN_LESS", "TOKEN_LESS_EQUAL",
+    // Literals.
+    "TOKEN_IDENTIFIER", "TOKEN_STRING", "TOKEN_NUMBER",
+    // Keywords.
+    "TOKEN_AND", "TOKEN_CLASS", "TOKEN_ELSE", "TOKEN_FALSE",
+    "TOKEN_FOR", "TOKEN_FUN", "TOKEN_IF", "TOKEN_NIL", "TOKEN_OR",
+    "TOKEN_PRINT", "TOKEN_RETURN", "TOKEN_SUPER", "TOKEN_THIS",
+    "TOKEN_TRUE", "TOKEN_VAR", "TOKEN_WHILE",
+
+    "TOKEN_ERROR", "TOKEN_EOF", "TOKEN_DUMMY"
+};
+
 void initScanner(const char* source)
 {
     scanner.start = source;
@@ -25,6 +49,7 @@ void initScanner(const char* source)
 
 Token scanToken()
 {
+    // printf("%s\n", __func__);
     /* Update state for WhiteSpaces and NewLines */
     processNLWSC();
 
@@ -98,11 +123,14 @@ Token scanToken()
 
 Token makeToken(TokenType type)
 {
+    // printf("%s\n", __func__);
     Token t;
     t.type = type;
     t.start = scanner.start;
     t.length = (int)(scanner.current - scanner.start);
     t.line = scanner.line;
+    /* TODO: Update Scanner offset */
+    scanner.offset += t.length;
     t.offset = scanner.offset;
 
     return t;
@@ -110,17 +138,23 @@ Token makeToken(TokenType type)
 
 bool isAtEnd()
 {
+    // printf("%s\n", __func__);
     return (*(scanner.current) == '\0');
 }
 
 /* Dealing with newline, whitespaces and comments */
 void processNLWSC()
 {
-    char currentChar = *(scanner.current);
     while (1)
     {
+        char currentChar = *(scanner.current);
+        // printf("Current Char -> %c, %d\n", currentChar, (int)currentChar);
         switch (currentChar)
         {
+            case 'q':
+            {
+                exit(0);
+            }
             case '\n':
             {
                 scanner.line ++;
@@ -138,16 +172,27 @@ void processNLWSC()
             }
             case '/':
             {
-                if (peek() == '/')
+                /* FIXME: stuck in while loop for single /, why? */
+                if (peekChar() == '/')
                 {
                     /* Skip to the next line */
-                    while (*(scanner.current) != '\n' && isAtEnd())
+                    while (*(scanner.current) != '\n' && (!isAtEnd()))
                     {
+                        // printf("Skipping: %c\n", *(scanner.current));
                         scanner.current ++;
+                        scanner.offset ++;
                     }
                     /* Now current points to '\n' which will be dealt by next loop */
                 }
+                else
+                {
+                    return;
+                }
                 break;
+            }
+            default:
+            {
+                return;
             }
         }
     }
@@ -155,13 +200,13 @@ void processNLWSC()
 
 /* Return the next char without moving the current pointer */
 
-char peek()
+char peekChar()
 {
     return *(scanner.current + 1);
 }
 
 void dumpToken(Token t)
 {
-    printf("%s @", TokenTypeName[t.type]);
-    printf("%s line %d, offset %d\n", t.line, t.offset);
+    printf("\t%s @", TokenTypeName[t.type]);
+    printf("line %d, offset %d\n", t.line, t.offset);
 }
