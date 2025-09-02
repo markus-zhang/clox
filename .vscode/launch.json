@@ -3,22 +3,13 @@
     "configurations": [
         {
             "name": "C Debug with LLDB",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/clox", // Path to the executable
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true, // Use an external console
-            "MIMode": "lldb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
+            "stopAtEntry": true,
+            "externalConsole": true,
             "preLaunchTask": "build-only",
             "internalConsoleOptions": "openOnSessionStart"
         }

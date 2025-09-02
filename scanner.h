@@ -50,6 +50,7 @@ bool isAtEnd();
 */
 void processNLWSC();
 char peekChar();
+static void advance();
 
 /* Debugging */
 void dumpToken(Token t);

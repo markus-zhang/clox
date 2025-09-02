@@ -61,7 +61,8 @@ Token scanToken()
         return makeToken(TOKEN_EOF);
     }
     /* Note that we increment current pointer immedaitely after the read */
-    char firstChar = (char)(*(scanner.current++));
+    char firstChar = (char)(*(scanner.current));
+    advance();
     switch (firstChar)
     {
         case '(':
@@ -110,8 +111,33 @@ Token scanToken()
         }
         case '"':
         {
-            /* TODO: Scan strings */
-            break;
+            /* 
+                Scan for the second " and post an error if none 
+                A few edge cases to consider:
+                - Empty string literal ""
+                - Multiple line string literal
+            */
+            /* Empty string */
+            if (*(scanner.current) == '"')
+            {
+                advance();
+            }
+            else 
+            {
+                while (peekChar() != '"')
+                {
+                    advance();
+                    if (isAtEnd())
+                    {
+                        printf("Error: Cannot locate end quote for string literal\n");
+                        return makeToken(TOKEN_ERROR);
+                    }
+                }
+                advance();  /* @ closing quote */
+                advance();
+            }
+            return makeToken(TOKEN_STRING);
+
         }
         default:
         {
@@ -130,8 +156,9 @@ Token makeToken(TokenType type)
     t.length = (int)(scanner.current - scanner.start);
     t.line = scanner.line;
     /* TODO: Update Scanner offset */
-    scanner.offset += t.length;
-    t.offset = scanner.offset;
+    // scanner.offset += t.length;
+    /* offset is the offset of the beginning -> since scanner.offset already moves to the end, need to subtract length */
+    t.offset = scanner.offset - t.length;
 
     return t;
 }
@@ -157,22 +184,18 @@ void processNLWSC()
             }
             case '\n':
             {
-                scanner.line ++;
-                scanner.offset = 0;
-                scanner.current ++;
+                advance();
                 break;
             }
             case ' ':
             case '\r':
             case '\t':
             {
-                scanner.offset ++;
-                scanner.current ++;
+                advance();
                 break;
             }
             case '/':
             {
-                /* FIXME: stuck in while loop for single /, why? */
                 if (peekChar() == '/')
                 {
                     /* Skip to the next line */
@@ -205,8 +228,23 @@ char peekChar()
     return *(scanner.current + 1);
 }
 
+static void advance()
+{
+    if (*(scanner.current) == '\n')
+    {
+        scanner.offset = 0;
+        scanner.line += 1;
+    }
+    else 
+    {
+        scanner.offset ++;
+    }
+    scanner.current ++;
+}
+
 void dumpToken(Token t)
 {
     printf("\t%s @", TokenTypeName[t.type]);
-    printf("line %d, offset %d\n", t.line, t.offset);
+    printf("line %d, offset %d", t.line, t.offset);
+    printf("\tLength: %d\n", t.length);
 }
