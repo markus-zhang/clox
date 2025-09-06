@@ -132,6 +132,8 @@ void repl()
 
         // interpretCode();
         compile(cloxCodeBuffer);
+        free(cloxCodeBuffer);
+        cloxCodeBuffer = NULL;
     }
 }
 
@@ -216,13 +218,15 @@ static char* combineMultipleLine(char* target, char source[16][1024], int lineCo
     for (int i = 0; i <= lineCount; i++)
     {
         /* strlen() does NOT count the trailing '\0' */
-        totalSize += strlen(source[lineCount]);
+        totalSize += strlen(source[i]);
     }
     /* Space for `\'0` */
     totalSize += 1;
     
     int charCount = 0;
     target = malloc(totalSize * sizeof(char));
+    /* strncpy() expects destination string holds a C string */
+    target[0] = '\0';
 
     for (int i = 0; i <= lineCount; i++)
     {
