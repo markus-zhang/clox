@@ -127,7 +127,7 @@ void repl()
         {
             printf("Line %d: %s", i, input[i]);
         }
-
+        printf("lineIndex: %d\n", lineIndex);
         cloxCodeBuffer = combineMultipleLine(cloxCodeBuffer, input, lineIndex);
 
         // interpretCode();
@@ -209,13 +209,6 @@ static char* combineMultipleLine(char* target, char source[16][1024], int lineCo
         Combine all (`lineCount` + 1) lines in `source` into `target`.
         Please call removeTrailingBackSlash() on each line before calling this
     */
-    
-    /* target should be NULL */
-    if (target)
-    {
-        free(target);
-        target = NULL;
-    }
 
     int totalSize = 0;
 
@@ -230,7 +223,6 @@ static char* combineMultipleLine(char* target, char source[16][1024], int lineCo
     
     int charCount = 0;
     target = malloc(totalSize * sizeof(char));
-    char* targetWalker = target;
 
     for (int i = 0; i <= lineCount; i++)
     {
@@ -240,5 +232,6 @@ static char* combineMultipleLine(char* target, char source[16][1024], int lineCo
 
     /* Debug */
     printf("%s -> %s(): %s\n", __FILE__, __func__, target);
+
     return target;
 }

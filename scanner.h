@@ -49,8 +49,13 @@ bool isAtEnd();
     otherwise things like <WH><NL><WH> is going to break
 */
 void processNLWSC();
+
 char peekChar();
 static void advance();
+
+/* Dealing with numericals */
+bool isNumerical(char c);
+Token processNumerical(int offset, int line);
 
 /* Debugging */
 void dumpToken(Token t);
