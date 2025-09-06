@@ -55,83 +55,114 @@ Token scanToken()
 
     /* At this point, current points to the first non-wsnl char */
     scanner.start = scanner.current;
+    int offset = scanner.offset;
+    int line = scanner.line;
 
     if (isAtEnd())
     {
-        return makeToken(TOKEN_EOF);
+        return makeToken(TOKEN_EOF, offset, line);
     }
     /* Note that we increment current pointer immedaitely after the read */
-    char firstChar = (char)(*(scanner.current++));
+    char firstChar = (char)(*(scanner.current));
+    advance();
     switch (firstChar)
     {
         case '(':
         {
-            return makeToken(TOKEN_LEFT_PAREN);
+            return makeToken(TOKEN_LEFT_PAREN, offset, line);
         }
         case ')':
         {
-            return makeToken(TOKEN_RIGHT_PAREN);
+            return makeToken(TOKEN_RIGHT_PAREN, offset, line);
         }
         case '{':
         {
-            return makeToken(TOKEN_LEFT_BRACE);
+            return makeToken(TOKEN_LEFT_BRACE, offset, line);
         }
         case '}':
         {
-            return makeToken(TOKEN_RIGHT_BRACE);
+            return makeToken(TOKEN_RIGHT_BRACE, offset, line);
         }
         case ',':
         {
-            return makeToken(TOKEN_COMMA);
+            return makeToken(TOKEN_COMMA, offset, line);
         }
         case '.':
         {
-            return makeToken(TOKEN_DOT);
+            return makeToken(TOKEN_DOT, offset, line);
         }
         case '-':
         {
-            return makeToken(TOKEN_MINUS);
+            return makeToken(TOKEN_MINUS, offset, line);
         }
         case '+':
         {
-            return makeToken(TOKEN_PLUS);
+            return makeToken(TOKEN_PLUS, offset, line);
         }
         case ';':
         {
-            return makeToken(TOKEN_SEMICOLON);
+            return makeToken(TOKEN_SEMICOLON, offset, line);
         }
         case '/':
         {
-            return makeToken(TOKEN_SLASH);
+            return makeToken(TOKEN_SLASH, offset, line);
         }
         case '*':
         {
-            return makeToken(TOKEN_STAR);
+            return makeToken(TOKEN_STAR, offset, line);
         }
         case '"':
         {
-            /* TODO: Scan strings */
-            break;
+            /* 
+                Scan for the second " and post an error if none 
+                A few edge cases to consider:
+                - Empty string literal ""
+                - Multiple line string literal
+            */
+            /* Empty string */
+            if (*(scanner.current) == '"')
+            {
+                advance();
+            }
+            /* Non-empty strings */
+            else 
+            {
+                while (peekChar() != '"')
+                {
+                    advance();
+                    if (isAtEnd())
+                    {
+                        printf("Error: Cannot locate end quote for string literal\n");
+                        return makeToken(TOKEN_ERROR, offset, line);
+                    }
+                }
+                advance();  /* @ closing quote */
+                advance();
+            }
+            return makeToken(TOKEN_STRING, offset, line);
+
         }
         default:
         {
             /* TODO: Think how do we architecture the codebase so that we can call panic() here */
-            return makeToken(TOKEN_ERROR);
+            return makeToken(TOKEN_ERROR, offset, line);
         }
     }
 }
 
-Token makeToken(TokenType type)
+Token makeToken(TokenType type, int offset, int line)
 {
     // printf("%s\n", __func__);
     Token t;
     t.type = type;
     t.start = scanner.start;
     t.length = (int)(scanner.current - scanner.start);
-    t.line = scanner.line;
+    t.line = line;
     /* TODO: Update Scanner offset */
-    scanner.offset += t.length;
-    t.offset = scanner.offset;
+    // scanner.offset += t.length;
+    /* offset is the offset of the beginning -> since scanner.offset already moves to the end, need to subtract length */
+    // t.offset = scanner.offset - t.length;
+    t.offset = offset;
 
     return t;
 }
@@ -157,22 +188,18 @@ void processNLWSC()
             }
             case '\n':
             {
-                scanner.line ++;
-                scanner.offset = 0;
-                scanner.current ++;
+                advance();
                 break;
             }
             case ' ':
             case '\r':
             case '\t':
             {
-                scanner.offset ++;
-                scanner.current ++;
+                advance();
                 break;
             }
             case '/':
             {
-                /* FIXME: stuck in while loop for single /, why? */
                 if (peekChar() == '/')
                 {
                     /* Skip to the next line */
@@ -205,8 +232,23 @@ char peekChar()
     return *(scanner.current + 1);
 }
 
+static void advance()
+{
+    if (*(scanner.current) == '\n')
+    {
+        scanner.offset = 0;
+        scanner.line += 1;
+    }
+    else 
+    {
+        scanner.offset ++;
+    }
+    scanner.current ++;
+}
+
 void dumpToken(Token t)
 {
     printf("\t%s @", TokenTypeName[t.type]);
-    printf("line %d, offset %d\n", t.line, t.offset);
+    printf("line %d, offset %d", t.line, t.offset);
+    printf("\tLength: %d\n", t.length);
 }

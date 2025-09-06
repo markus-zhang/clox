@@ -1,26 +1,38 @@
-# defining the object files for this application
-OBJS = main.c chunk.c debug.c memory.c value.c vm.c scanner.c compiler.c
+# Defining the object files for this application
+SRCS = main.c chunk.c debug.c memory.c value.c vm.c scanner.c compiler.c
+OBJS = $(SRCS:.c=.o) # Automatically creates a list of object files (.o) from source files (.c)
 
-# define the executables
+# Define the executable
 EXE = clox
 
-# the final build step
+# Final build step (links the object files)
 $(EXE): $(OBJS)
-	gcc -o $(EXE) $(OBJS)
+	gcc -g -o $(EXE) $(OBJS)
 
-# dedicated build step (compiles only)
-build: $(EXE)
+# Generic rule to compile a .c file into a .o file
+%.o: %.c
+	gcc -g -c $< -o $@
 
-# cleaning the build
+# Cleaning the build
 clean:
-	rm -f $(EXE)
+	rm -f $(EXE) $(OBJS)
 
-# runs the compiled application
-run: clean $(EXE)
+# Main build target (runs the default rule)
+.PHONY: all
+all: $(EXE)
+
+# Dedicated build step (compiles only)
+.PHONY: build
+build: all
+
+# Runs the compiled application
+.PHONY: run
+run: all
 	./$(EXE)
 
-# runs app with arg
-run_file: clean $(EXE)
+# Runs app with arg
+.PHONY: run_file
+run_file: all
 	./$(EXE) ./test
 
 ########## For HPC project ############

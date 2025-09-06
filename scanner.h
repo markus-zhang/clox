@@ -38,7 +38,7 @@ typedef struct
 
 void initScanner(const char* source);
 Token scanToken();
-Token makeToken(TokenType type);
+Token makeToken(TokenType type, int offset, int line);
 
 /* Dealing with EOF */
 bool isAtEnd();
@@ -50,6 +50,7 @@ bool isAtEnd();
 */
 void processNLWSC();
 char peekChar();
+static void advance();
 
 /* Debugging */
 void dumpToken(Token t);
