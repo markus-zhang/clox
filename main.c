@@ -108,7 +108,7 @@ void repl()
         int lineIndex = 0;  // which line?
         int lineOffset = 0; // which offset in the line?
 
-        printf("clox> ");
+        printf("lox> ");
         while (fgets(input[lineIndex], 1024, stdin) != NULL)
         {
             // If no \ char at the end, just break
