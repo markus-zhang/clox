@@ -15,9 +15,6 @@ typedef struct
 
 Scanner scanner;
 
-keywordTrieNode keyword[26];
-int keywordCount = 0;
-
 const char* TokenTypeName[] = {
     /* Single-character tokens */
     "TOKEN_LEFT_PAREN", "TOKEN_RIGHT_PAREN",
@@ -40,69 +37,6 @@ const char* TokenTypeName[] = {
 
     "TOKEN_ERROR", "TOKEN_EOF", "TOKEN_DUMMY"
 };
-
-void initKeywordTrie(char c)
-{
-    /* TODO: Check for repeating leadingChar */
-    keywordTrieNode node;
-    node.leadingChar = c;
-    node.count = 0;
-    node.trailingChar = malloc(sizeof(keywordTrieNode) * KEYWORD_TRIE_MAX_CHILDEN);
-    keyword[keywordCount++] = node;
-}
-
-static void insertKeywordTrie(const char* kw)
-{
-    /* I'm lazy so please make sure you call initKeywordTrie for all leading chars first */
-    /*
-        Algo: 
-        Find the first char (complain if not found, must exist),
-        then find the second char (if not, create a new node),
-        then find the third...so on
-    */
-    for (int i = 0; i < keywordCount; i++)
-    {
-        if (keyword[i].leadingChar == (*kw))
-        {
-            kw++;
-            insertKeywordChar(kw, keyword + i);
-        }
-    }
-
-    printf("Error: You have not initiated the first char properly -> %c\n", *kw);
-}
-
-static void insertKeywordChar(char* cp, keywordTrieNode* parent)
-{
-    /* Revursion break point -> when we reach the end of the string */
-    if (*cp == '\0')
-    {
-        return;
-    }
-    bool foundChildren = false;
-    /* Find possible collision among all the children of the parent */
-    for (int i = 0; i < parent->count; i++)
-    {
-        if (((parent->trailingChar) + i)->leadingChar == (*cp))
-        {
-            foundChildren = true;
-            cp++;
-            insertKeywordChar(cp, (parent->trailingChar) + i);
-        }
-    }
-    if (!foundChildren)
-    {
-        if (parent->count >= KEYWORD_TRIE_MAX_CHILDEN)
-        {
-            printf("Parent %c already has %d children", parent->leadingChar, KEYWORD_TRIE_MAX_CHILDEN);
-        }
-        else
-        {
-            
-        }
-    }
-
-}
 
 static bool isKeyword(const char* start, int length)
 {
@@ -396,33 +330,6 @@ void dumpToken(Token t, const char* source)
     for (int i = 0; i < t.length; i++)
     {
         putchar(*(t.start + i));
-    }
-
-    putchar('\n');
-}
-
-static void dumpKeywordTrie()
-{
-    for (int i = 0; i < keywordCount; i++)
-    {
-        dumpKeyword(keyword + i);
-    }
-}
-
-static void dumpKeyword(keywordTrieNode* node)
-{
-    /*
-        if there is no children:
-            simply print a newline char.
-        if there are children: 
-            for each child:
-                call dumpKeyword(child, )
-    */
-
-    for (int i = 0; i < node->count; i++)
-    {
-        putchar(node->leadingChar);
-        dumpKeyword((node->trailingChar) + i);
     }
 
     putchar('\n');
