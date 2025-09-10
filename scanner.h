@@ -36,9 +36,6 @@ typedef struct
     int offset; /* line and offset are both for debugging */
 } Token;
 
-/* Scanning for keywords */
-static bool isKeyword(const char* start, int length);
-
 void initScanner(const char* source);
 Token scanToken();
 Token makeToken(TokenType type, int offset, int line);

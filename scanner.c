@@ -38,29 +38,12 @@ const char* TokenTypeName[] = {
     "TOKEN_ERROR", "TOKEN_EOF", "TOKEN_DUMMY"
 };
 
-static bool isKeyword(const char* start, int length)
-{
-    /* TODO: well finish this! */
-    return true;
-}
-
 void initScanner(const char* source)
 {
     scanner.start = source;
     scanner.current = source;
     scanner.line = 0;
     scanner.offset = 0;
-
-    /* Test Trie */
-    initKeywordTrie('a');
-    insertKeywordTrie("a");
-    insertKeywordTrie("ab");
-    insertKeywordTrie("abc");
-    insertKeywordTrie("acce");
-
-    dumpKeywordTrie();
-    /* TODO: Remove */
-    exit(0);
 }
 
 Token scanToken()
@@ -317,7 +300,79 @@ Token processIdent(int offset, int line)
 
     /* Check for keywords */
 
-    return makeToken(TOKEN_IDENTIFIER, offset, line);
+    char leadingChar = *(scanner.start);
+    int len = scanner.current - scanner.start;
+    switch(leadingChar)
+    {
+        case 'a':
+        {
+            if (strlen(scanner.start) == strlen("and") && memcmp(scanner.start, "and", strlen("and")) == 0)
+            {
+                return makeToken(TOKEN_AND, offset, line);;
+            }
+        }
+        case 'c':
+        {
+            if (strlen(scanner.start) == strlen("class") && memcmp(scanner.start, "class", strlen("class")) == 0)
+            {
+                return makeToken(TOKEN_CLASS, offset, line);;
+            }
+        }
+        case 'e':
+        {
+            if (strlen(scanner.start) == strlen("else") && memcmp(scanner.start, "else", strlen("else")) == 0)
+            {
+                return makeToken(TOKEN_ELSE, offset, line);;
+            }
+        }
+        case 'f':
+        {
+            if (strlen(scanner.start) == strlen("for") && memcmp(scanner.start, "for", strlen("for")) == 0)
+            {
+                return makeToken(TOKEN_FOR, offset, line);;
+            }
+            if (strlen(scanner.start) == strlen("fun") && memcmp(scanner.start, "fun", strlen("fun")) == 0)
+            {
+                return makeToken(TOKEN_FUN, offset, line);;
+            }
+            if (strlen(scanner.start) == strlen("false") && memcmp(scanner.start, "false", strlen("false")) == 0)
+            {
+                return makeToken(TOKEN_FALSE, offset, line);;
+            }
+        }
+        case 'i':
+        {
+            if (strlen(scanner.start) == strlen("if") && memcmp(scanner.start, "if", strlen("if")) == 0)
+            {
+                return makeToken(TOKEN_IF, offset, line);;
+            }
+        }
+        case 'n':
+        {
+            if (strlen(scanner.start) == strlen("nil") && memcmp(scanner.start, "nil", strlen("nil")) == 0)
+            {
+                return makeToken(TOKEN_NIL, offset, line);;
+            }
+        }
+        case 'o':
+        {
+            if (strlen(scanner.start) == strlen("or") && memcmp(scanner.start, "or", strlen("or")) == 0)
+            {
+                return makeToken(TOKEN_OR, offset, line);;
+            }
+        }
+        case 'p':
+        {
+            if (strlen(scanner.start) == strlen("print") && memcmp(scanner.start, "print", strlen("print")) == 0)
+            {
+                return makeToken(TOKEN_PRINT, offset, line);;
+            }
+        }
+        default:
+        {
+            return makeToken(TOKEN_IDENTIFIER, offset, line);
+        }
+    }
 }
 
 void dumpToken(Token t, const char* source)
