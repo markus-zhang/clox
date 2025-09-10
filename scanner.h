@@ -62,6 +62,6 @@ bool isAlpha(char c);
 Token processIdent(int offset, int line);
 
 /* Debugging */
-void dumpToken(Token t);
+void dumpToken(Token t, const char* source);
 
 #endif

@@ -73,10 +73,10 @@ Token scanToken()
     }
 
     /* Check for identifiers and keywords*/
-    if (isAlphs(firstChar))
+    if (isAlpha(firstChar))
     {
         return processIdent(offset, line);
-    })
+    }
 
     switch (firstChar)
     {
@@ -306,9 +306,17 @@ Token processIdent(int offset, int line)
     return makeToken(TOKEN_IDENTIFIER, offset, line);
 }
 
-void dumpToken(Token t)
+void dumpToken(Token t, const char* source)
 {
     printf("\t%s @", TokenTypeName[t.type]);
-    printf("line %d, offset %d", t.line, t.offset);
-    printf("\tLength: %d\n", t.length);
+    printf("\tline %d, offset %d", t.line, t.offset);
+    printf("\tLength: %d", t.length);
+    printf("\tLexeme: ");
+
+    for (int i = 0; i < t.length; i++)
+    {
+        putchar(*(t.start + i));
+    }
+
+    putchar('\n');
 }
