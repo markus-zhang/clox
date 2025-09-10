@@ -65,6 +65,13 @@ Token scanToken()
     /* Note that we increment current pointer immedaitely after the read */
     char firstChar = (char)(*(scanner.current));
     advance();
+
+    /* Check for numericals */
+    if (isNumerical(firstChar))
+    {
+        return processNumerical(offset, line);
+    }
+
     switch (firstChar)
     {
         case '(':
@@ -244,6 +251,34 @@ static void advance()
         scanner.offset ++;
     }
     scanner.current ++;
+}
+
+bool isNumerical(char c)
+{
+    return ((c >= '0') && (c <= '9'));
+}
+
+Token processNumerical(int offset, int line)
+{
+    /* We first exhaust all numbers, and then find a decimal point, if found we again exhaust all numbers */
+    while (isNumerical(peekChar()))
+    {
+        advance();
+    }
+
+    if (peekChar() == '.')
+    {
+        advance();
+        while (isNumerical(peekChar()))
+        {
+            advance();
+        }
+    }
+
+    /* Make sure current char points to the first non-numerical char */
+    advance();
+
+    return makeToken(TOKEN_NUMBER, offset, line);
 }
 
 void dumpToken(Token t)

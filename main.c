@@ -108,7 +108,7 @@ void repl()
         int lineIndex = 0;  // which line?
         int lineOffset = 0; // which offset in the line?
 
-        printf("clox> ");
+        printf("lox> ");
         while (fgets(input[lineIndex], 1024, stdin) != NULL)
         {
             // If no \ char at the end, just break
@@ -127,11 +127,13 @@ void repl()
         {
             printf("Line %d: %s", i, input[i]);
         }
-
+        printf("lineIndex: %d\n", lineIndex);
         cloxCodeBuffer = combineMultipleLine(cloxCodeBuffer, input, lineIndex);
 
         // interpretCode();
         compile(cloxCodeBuffer);
+        free(cloxCodeBuffer);
+        cloxCodeBuffer = NULL;
     }
 }
 
@@ -209,13 +211,6 @@ static char* combineMultipleLine(char* target, char source[16][1024], int lineCo
         Combine all (`lineCount` + 1) lines in `source` into `target`.
         Please call removeTrailingBackSlash() on each line before calling this
     */
-    
-    /* target should be NULL */
-    if (target)
-    {
-        free(target);
-        target = NULL;
-    }
 
     int totalSize = 0;
 
@@ -223,14 +218,15 @@ static char* combineMultipleLine(char* target, char source[16][1024], int lineCo
     for (int i = 0; i <= lineCount; i++)
     {
         /* strlen() does NOT count the trailing '\0' */
-        totalSize += strlen(source[lineCount]);
+        totalSize += strlen(source[i]);
     }
     /* Space for `\'0` */
     totalSize += 1;
     
     int charCount = 0;
     target = malloc(totalSize * sizeof(char));
-    char* targetWalker = target;
+    /* strncpy() expects destination string holds a C string */
+    target[0] = '\0';
 
     for (int i = 0; i <= lineCount; i++)
     {
@@ -240,5 +236,6 @@ static char* combineMultipleLine(char* target, char source[16][1024], int lineCo
 
     /* Debug */
     printf("%s -> %s(): %s\n", __FILE__, __func__, target);
+
     return target;
 }

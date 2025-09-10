@@ -7,7 +7,7 @@ EXE = clox
 
 # Final build step (links the object files)
 $(EXE): $(OBJS)
-	gcc -g -o $(EXE) $(OBJS)
+	gcc -g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer -o $(EXE) $(OBJS)
 
 # Generic rule to compile a .c file into a .o file
 %.o: %.c
