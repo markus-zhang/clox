@@ -306,71 +306,124 @@ Token processIdent(int offset, int line)
     {
         case 'a':
         {
-            if (strlen(scanner.start) == strlen("and") && memcmp(scanner.start, "and", strlen("and")) == 0)
+            if (scanner.current - scanner.start == strlen("and") && memcmp(scanner.start, "and", strlen("and")) == 0)
             {
                 return makeToken(TOKEN_AND, offset, line);;
             }
+            break;
         }
         case 'c':
         {
-            if (strlen(scanner.start) == strlen("class") && memcmp(scanner.start, "class", strlen("class")) == 0)
+            if (scanner.current - scanner.start == strlen("class") && memcmp(scanner.start, "class", strlen("class")) == 0)
             {
                 return makeToken(TOKEN_CLASS, offset, line);;
             }
+            break;
         }
         case 'e':
         {
-            if (strlen(scanner.start) == strlen("else") && memcmp(scanner.start, "else", strlen("else")) == 0)
+            if (scanner.current - scanner.start == strlen("else") && memcmp(scanner.start, "else", strlen("else")) == 0)
             {
                 return makeToken(TOKEN_ELSE, offset, line);;
             }
+            break;
         }
         case 'f':
         {
-            if (strlen(scanner.start) == strlen("for") && memcmp(scanner.start, "for", strlen("for")) == 0)
+            if (scanner.current - scanner.start == strlen("for") && memcmp(scanner.start, "for", strlen("for")) == 0)
             {
                 return makeToken(TOKEN_FOR, offset, line);;
             }
-            if (strlen(scanner.start) == strlen("fun") && memcmp(scanner.start, "fun", strlen("fun")) == 0)
+            if (scanner.current - scanner.start == strlen("fun") && memcmp(scanner.start, "fun", strlen("fun")) == 0)
             {
                 return makeToken(TOKEN_FUN, offset, line);;
             }
-            if (strlen(scanner.start) == strlen("false") && memcmp(scanner.start, "false", strlen("false")) == 0)
+            if (scanner.current - scanner.start == strlen("false") && memcmp(scanner.start, "false", strlen("false")) == 0)
             {
                 return makeToken(TOKEN_FALSE, offset, line);;
             }
+            break;
         }
         case 'i':
         {
-            if (strlen(scanner.start) == strlen("if") && memcmp(scanner.start, "if", strlen("if")) == 0)
+            if (scanner.current - scanner.start == strlen("if") && memcmp(scanner.start, "if", strlen("if")) == 0)
             {
                 return makeToken(TOKEN_IF, offset, line);;
             }
+            break;
         }
         case 'n':
         {
-            if (strlen(scanner.start) == strlen("nil") && memcmp(scanner.start, "nil", strlen("nil")) == 0)
+            if (scanner.current - scanner.start == strlen("nil") && memcmp(scanner.start, "nil", strlen("nil")) == 0)
             {
                 return makeToken(TOKEN_NIL, offset, line);;
             }
+            break;
         }
         case 'o':
         {
-            if (strlen(scanner.start) == strlen("or") && memcmp(scanner.start, "or", strlen("or")) == 0)
+            if (scanner.current - scanner.start == strlen("or") && memcmp(scanner.start, "or", strlen("or")) == 0)
             {
                 return makeToken(TOKEN_OR, offset, line);;
             }
+            break;
         }
         case 'p':
         {
-            if (strlen(scanner.start) == strlen("print") && memcmp(scanner.start, "print", strlen("print")) == 0)
+            if (scanner.current - scanner.start == strlen("print") && memcmp(scanner.start, "print", strlen("print")) == 0)
             {
                 return makeToken(TOKEN_PRINT, offset, line);;
             }
+            break;
+        }
+        case 'r':
+        {
+            if (scanner.current - scanner.start == strlen("return") && memcmp(scanner.start, "return", strlen("return")) == 0)
+            {
+                return makeToken(TOKEN_RETURN, offset, line);;
+            }
+            break;
+        }
+        case 's':
+        {
+            if (scanner.current - scanner.start == strlen("super") && memcmp(scanner.start, "super", strlen("super")) == 0)
+            {
+                return makeToken(TOKEN_RETURN, offset, line);;
+            }
+            break;
+        }
+        case 't':
+        {
+            if (scanner.current - scanner.start == strlen("this") && memcmp(scanner.start, "this", strlen("this")) == 0)
+            {
+                return makeToken(TOKEN_RETURN, offset, line);;
+            }
+            if (scanner.current - scanner.start == strlen("true") && memcmp(scanner.start, "true", strlen("true")) == 0)
+            {
+                return makeToken(TOKEN_TRUE, offset, line);;
+            }
+            break;
+        }
+        case 'v':
+        {
+            if (scanner.current - scanner.start == strlen("var") && memcmp(scanner.start, "var", strlen("var")) == 0)
+            {
+                return makeToken(TOKEN_VAR, offset, line);;
+            }
+            break;
+        }
+        case 'w':
+        {
+            if (scanner.current - scanner.start == strlen("while") && memcmp(scanner.start, "while", strlen("while")) == 0)
+            {
+                return makeToken(TOKEN_WHILE, offset, line);;
+            }
+            break;
         }
         default:
         {
             return makeToken(TOKEN_IDENTIFIER, offset, line);
+            break;
         }
     }
 }
