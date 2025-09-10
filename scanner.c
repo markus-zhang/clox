@@ -72,6 +72,12 @@ Token scanToken()
         return processNumerical(offset, line);
     }
 
+    /* Check for identifiers and keywords*/
+    if (isAlphs(firstChar))
+    {
+        return processIdent(offset, line);
+    })
+
     switch (firstChar)
     {
         case '(':
@@ -279,6 +285,25 @@ Token processNumerical(int offset, int line)
     advance();
 
     return makeToken(TOKEN_NUMBER, offset, line);
+}
+
+bool isAlpha(char c)
+{
+    return (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || (c == '_'));
+}
+
+Token processIdent(int offset, int line)
+{
+    /* once the first char is confirmed, the rest can be numerical or alpha or underscore, like a123_45z */
+    while (isNumerical(peekChar()) || isAlpha(peekChar()))
+    {
+        advance();
+    }
+
+    /* Make sure current char points to the first non-numerical char */
+    advance();
+
+    return makeToken(TOKEN_IDENTIFIER, offset, line);
 }
 
 void dumpToken(Token t)

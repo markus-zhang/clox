@@ -57,8 +57,9 @@ static void advance();
 bool isNumerical(char c);
 Token processNumerical(int offset, int line);
 
-
 /* Dealing with variables +  */
+bool isAlpha(char c);
+Token processIdent(int offset, int line);
 
 /* Debugging */
 void dumpToken(Token t);
