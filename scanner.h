@@ -36,6 +36,21 @@ typedef struct
     int offset; /* line and offset are both for debugging */
 } Token;
 
+/* Scanning for keywords */
+#define KEYWORD_TRIE_MAX_CHILDEN 3
+typedef struct keywordTrieNode
+{
+    char leadingChar;
+    /* FIXME: I know maximum is 3 and I don't want to malloc/free */
+    /* https://craftinginterpreters.com/image/scanning-on-demand/keywords.png */
+    int count;
+    struct keywordTrieNode* trailingChar;
+} keywordTrieNode;
+void initKeywordTrie(char c);
+static void insertKeywordTrie(const char* kw);
+static void insertKeywordChar(char* cp, keywordTrieNode* parent);
+static bool isKeyword(const char* start, int length);
+
 void initScanner(const char* source);
 Token scanToken();
 Token makeToken(TokenType type, int offset, int line);
@@ -63,5 +78,7 @@ Token processIdent(int offset, int line);
 
 /* Debugging */
 void dumpToken(Token t, const char* source);
+static void dumpKeywordTrie();
+static void dumpKeyword(keywordTrieNode* node);
 
 #endif
