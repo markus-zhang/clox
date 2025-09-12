@@ -12,6 +12,21 @@
             "externalConsole": true,
             "preLaunchTask": "build-only",
             "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": "C Debug with GDB",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/clox", // Path to the executable
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb", // path to gdb on Linux
+            "console": "integratedTerminal",        // <— use this
+            "externalConsole": false,               // <— not needed with console
+            "preLaunchTask": "build-only",
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }

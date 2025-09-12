@@ -54,6 +54,7 @@
         "typeinfo": "cpp",
         "unordered_map": "cpp",
         "algorithm": "cpp",
-        "common.h": "c"
+        "common.h": "c",
+        "stdio.h": "c"
     }
 }

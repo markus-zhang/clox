@@ -14,7 +14,6 @@ typedef struct
 } Scanner;
 
 Scanner scanner;
-bool inString = false;
 
 const char* TokenTypeName[] = {
     /* Single-character tokens */
@@ -70,6 +69,12 @@ Token scanToken()
     if (isNumerical(firstChar))
     {
         return processNumerical(offset, line);
+    }
+
+    /* Check for identifiers and keywords*/
+    if (isAlpha(firstChar))
+    {
+        return processIdent(offset, line);
     }
 
     switch (firstChar)
@@ -165,10 +170,6 @@ Token makeToken(TokenType type, int offset, int line)
     t.start = scanner.start;
     t.length = (int)(scanner.current - scanner.start);
     t.line = line;
-    /* TODO: Update Scanner offset */
-    // scanner.offset += t.length;
-    /* offset is the offset of the beginning -> since scanner.offset already moves to the end, need to subtract length */
-    // t.offset = scanner.offset - t.length;
     t.offset = offset;
 
     return t;
@@ -281,9 +282,163 @@ Token processNumerical(int offset, int line)
     return makeToken(TOKEN_NUMBER, offset, line);
 }
 
-void dumpToken(Token t)
+bool isAlpha(char c)
+{
+    return (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || (c == '_'));
+}
+
+Token processIdent(int offset, int line)
+{
+    /* once the first char is confirmed, the rest can be numerical or alpha or underscore, like a123_45z */
+    while (isNumerical(peekChar()) || isAlpha(peekChar()))
+    {
+        advance();
+    }
+
+    /* Make sure current char points to the first non-numerical char */
+    advance();
+
+    /* Check for keywords */
+
+    char leadingChar = *(scanner.start);
+    int len = scanner.current - scanner.start;
+    switch(leadingChar)
+    {
+        case 'a':
+        {
+            if (scanner.current - scanner.start == strlen("and") && memcmp(scanner.start, "and", strlen("and")) == 0)
+            {
+                return makeToken(TOKEN_AND, offset, line);;
+            }
+            break;
+        }
+        case 'c':
+        {
+            if (scanner.current - scanner.start == strlen("class") && memcmp(scanner.start, "class", strlen("class")) == 0)
+            {
+                return makeToken(TOKEN_CLASS, offset, line);;
+            }
+            break;
+        }
+        case 'e':
+        {
+            if (scanner.current - scanner.start == strlen("else") && memcmp(scanner.start, "else", strlen("else")) == 0)
+            {
+                return makeToken(TOKEN_ELSE, offset, line);;
+            }
+            break;
+        }
+        case 'f':
+        {
+            if (scanner.current - scanner.start == strlen("for") && memcmp(scanner.start, "for", strlen("for")) == 0)
+            {
+                return makeToken(TOKEN_FOR, offset, line);;
+            }
+            if (scanner.current - scanner.start == strlen("fun") && memcmp(scanner.start, "fun", strlen("fun")) == 0)
+            {
+                return makeToken(TOKEN_FUN, offset, line);;
+            }
+            if (scanner.current - scanner.start == strlen("false") && memcmp(scanner.start, "false", strlen("false")) == 0)
+            {
+                return makeToken(TOKEN_FALSE, offset, line);;
+            }
+            break;
+        }
+        case 'i':
+        {
+            if (scanner.current - scanner.start == strlen("if") && memcmp(scanner.start, "if", strlen("if")) == 0)
+            {
+                return makeToken(TOKEN_IF, offset, line);;
+            }
+            break;
+        }
+        case 'n':
+        {
+            if (scanner.current - scanner.start == strlen("nil") && memcmp(scanner.start, "nil", strlen("nil")) == 0)
+            {
+                return makeToken(TOKEN_NIL, offset, line);;
+            }
+            break;
+        }
+        case 'o':
+        {
+            if (scanner.current - scanner.start == strlen("or") && memcmp(scanner.start, "or", strlen("or")) == 0)
+            {
+                return makeToken(TOKEN_OR, offset, line);;
+            }
+            break;
+        }
+        case 'p':
+        {
+            if (scanner.current - scanner.start == strlen("print") && memcmp(scanner.start, "print", strlen("print")) == 0)
+            {
+                return makeToken(TOKEN_PRINT, offset, line);;
+            }
+            break;
+        }
+        case 'r':
+        {
+            if (scanner.current - scanner.start == strlen("return") && memcmp(scanner.start, "return", strlen("return")) == 0)
+            {
+                return makeToken(TOKEN_RETURN, offset, line);;
+            }
+            break;
+        }
+        case 's':
+        {
+            if (scanner.current - scanner.start == strlen("super") && memcmp(scanner.start, "super", strlen("super")) == 0)
+            {
+                return makeToken(TOKEN_RETURN, offset, line);;
+            }
+            break;
+        }
+        case 't':
+        {
+            if (scanner.current - scanner.start == strlen("this") && memcmp(scanner.start, "this", strlen("this")) == 0)
+            {
+                return makeToken(TOKEN_RETURN, offset, line);;
+            }
+            if (scanner.current - scanner.start == strlen("true") && memcmp(scanner.start, "true", strlen("true")) == 0)
+            {
+                return makeToken(TOKEN_TRUE, offset, line);;
+            }
+            break;
+        }
+        case 'v':
+        {
+            if (scanner.current - scanner.start == strlen("var") && memcmp(scanner.start, "var", strlen("var")) == 0)
+            {
+                return makeToken(TOKEN_VAR, offset, line);;
+            }
+            break;
+        }
+        case 'w':
+        {
+            if (scanner.current - scanner.start == strlen("while") && memcmp(scanner.start, "while", strlen("while")) == 0)
+            {
+                return makeToken(TOKEN_WHILE, offset, line);;
+            }
+            break;
+        }
+        default:
+        {
+            return makeToken(TOKEN_IDENTIFIER, offset, line);
+            break;
+        }
+    }
+}
+
+void dumpToken(Token t, const char* source)
 {
     printf("\t%s @", TokenTypeName[t.type]);
-    printf("line %d, offset %d", t.line, t.offset);
-    printf("\tLength: %d\n", t.length);
+    printf("\tline %d, offset %d", t.line, t.offset);
+    printf("\tLength: %d", t.length);
+    printf("\tLexeme: ");
+
+    for (int i = 0; i < t.length; i++)
+    {
+        putchar(*(t.start + i));
+    }
+
+    putchar('\n');
 }
