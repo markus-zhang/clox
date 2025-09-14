@@ -15,6 +15,16 @@ typedef struct Parser
     bool panicMode;
 } Parser;
 
+/*
+    Precedence for Pratt parser
+*/
+typedef enum
+{
+    PREC_NONE,
+    PREC_ASSIGNMENT,    // =
+    PREC_OR,            // or
+}
+
 /* Again we make this global */
 Parser parser;
 Chunk* compilingChunk;
@@ -83,6 +93,10 @@ static void advance()
 
     Then we build an array of function pointers, each pointing to one of the ^ functions. 
     The indexs of each function equals the TokenType enum values.
+
+    *************************************************************
+    * NOTE: each parsing function like number() does NOT know precedence, unlike recursive descendent parsing,
+    * where each function would call into the highest precedent operator and go up from there
 */
 static void expressions()
 {
@@ -170,13 +184,24 @@ static void unary()
     /* Save the operator */
     TokenType op = parser.previous.type;
 
+    /*
+        NOTE: expression() is run before the unary op is emitted
+        So for example, given -(5+6), OP_NEGATE is emitted as the last item
+        This makes sense as the value first goes onto the stack and then the negate gets pushed
+        During evaluation, the negation gets read first
+    */
     expression();
 
     switch (op)
     {
         case TOKEN_MINUS:
         {
-            
+            emitByte(OP_NEGATE);
+            break;
+        }
+        default:
+        {
+            return;
         }
     }
 }

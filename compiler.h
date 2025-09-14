@@ -16,6 +16,8 @@ static void number();
 static void grouping();
 /* Unary operators */
 static void unary();
+/* Pratt parsing */
+static void parsePrecedence(Precedence precedence);
 
 static void consume(TokenType type, const char* message);
 static void endCompiler();
