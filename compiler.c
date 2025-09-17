@@ -20,10 +20,20 @@ typedef struct Parser
 */
 typedef enum
 {
+    // Lowest
     PREC_NONE,
     PREC_ASSIGNMENT,    // =
     PREC_OR,            // or
-}
+    PREC_AND,           // and
+    PREC_EQUALITY,      // == !=
+    PREC_COMPARISON,    // < > <= >=
+    PREC_TERM,          // + -
+    PREC_FACTOR,        // * /
+    PREC_UNARY,         // - !
+    PREC_CALL,          // . ()
+    PREC_PRIMARY
+    // Highest
+} Precedence;
 
 /* Again we make this global */
 Parser parser;
@@ -97,10 +107,16 @@ static void advance()
     *************************************************************
     * NOTE: each parsing function like number() does NOT know precedence, unlike recursive descendent parsing,
     * where each function would call into the highest precedent operator and go up from there
+    * 
+    * In a Pratt's parser, the precedences are stored in a table, and when the parser advances, 
+    * it is "blocked" by any operators of higher precedences.
+    * Take 5+2*4 as an example, we first reaches +, then it reaches *, which has higher precedence than +,
+    * so the parser is blocked and only reads 5.
 */
 static void expressions()
 {
-
+    /* NOTE: we simply starts from the lowest precedence */
+    parsePrecedence(PREC_ASSIGNMENT);
 }
 
 static void consume(TokenType type, const char* message)
@@ -115,6 +131,52 @@ static void consume(TokenType type, const char* message)
         errorAtCurrent(message);
     }
 }
+
+/* 
+    NOTE: What the call chain does is to push the constant to the array of constants, 
+    and grab the index and push index, then push the index into a chunk (remember we don't save value, just index)
+*/
+static void number()
+{
+    double value = strtod(parser.previous.start, NULL);
+    emitConstant(value);
+}
+
+static void grouping()
+{
+    /* Assuming initial ( consumed at this point */
+    /* NOTE: Whatever inside the parenthesis is an expression */
+    expressions();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+}
+
+static void unary()
+{
+    /* Save the operator */
+    TokenType op = parser.previous.type;
+
+    /*
+        NOTE: parsePrecedence() is run before the unary op is emitted
+        So for example, given -(5+6), OP_NEGATE is emitted as the last item
+        This makes sense as the value first goes onto the stack and then the negate gets pushed
+        During evaluation, the negation gets read first
+    */
+    parsePrecedence(PREC_UNARY);
+
+    switch (op)
+    {
+        case TOKEN_MINUS:
+        {
+            emitByte(OP_NEGATE);
+            break;
+        }
+        default:
+        {
+            return;
+        }
+    }
+}
+
 
 static void endCompiler()
 {
@@ -161,50 +223,6 @@ static void emitReturn()
     emitByte(OP_RETURN);
 }
 
-/* 
-    NOTE: What the call chain does is to push the constant to the array of constants, 
-    and grab the index and push index, then push the index into a chunk (remember we don't save value, just index)
-*/
-static void number()
-{
-    double value = strtod(parser.previous.start, NULL);
-    emitConstant(value);
-}
-
-static void grouping()
-{
-    /* Assuming initial ( consumed at this point */
-    /* NOTE: Whatever inside the parenthesis is an expression */
-    expressions();
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
-}
-
-static void unary()
-{
-    /* Save the operator */
-    TokenType op = parser.previous.type;
-
-    /*
-        NOTE: expression() is run before the unary op is emitted
-        So for example, given -(5+6), OP_NEGATE is emitted as the last item
-        This makes sense as the value first goes onto the stack and then the negate gets pushed
-        During evaluation, the negation gets read first
-    */
-    expression();
-
-    switch (op)
-    {
-        case TOKEN_MINUS:
-        {
-            emitByte(OP_NEGATE);
-            break;
-        }
-        default:
-        {
-            return;
-        }
-    }
-}
 
 static void emitConstant(double value)
 {
