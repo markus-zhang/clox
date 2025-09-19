@@ -4,6 +4,7 @@
 #include "common.h"
 #include "compiler.h"
 #include "chunk.h"
+#include "debug.h"
 
 
 typedef struct Parser
@@ -198,6 +199,7 @@ ParseRule rules[] = {
   [TOKEN_SEMICOLON]     = {NULL,     NULL,   PREC_NONE},
   [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
   [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
+  /* TODO: BANG eventually should have an unary prefix and etc. */
   [TOKEN_BANG]          = {NULL,     NULL,   PREC_NONE},
   [TOKEN_BANG_EQUAL]    = {NULL,     NULL,   PREC_NONE},
   [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
@@ -229,9 +231,26 @@ ParseRule rules[] = {
   [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
 };
 
+/* NOTE: Algo similar to wiki: https://en.wikipedia.org/wiki/Operator-precedence_parser#Pseudocode */
 static void parsePrecedence(Precedence precedence) 
 {
-  // What goes here?
+    advance();
+    ParseFn prefixRule = getRule(parser.previous.type)->prefix;
+
+    if (prefixRule == NULL)
+    {
+        errorAt(&parser.previous, "Expect expressions.");
+        return;
+    }
+
+    prefixRule();
+
+    while (precedence <= getRule(parser.current.type)->precedence)
+    {
+        advance();
+        ParseFn infixRule = getRule(parser.previous.type)->infix;
+        infixRule();
+    }
 }
 
 static ParseRule* getRule(TokenType type)
@@ -303,6 +322,7 @@ static void endCompiler()
     // And we need to return/emit the expression, right?
     // WHY: to print that value, we are temporarily using the OP_RETURN instruction
     // So we have the compiler add one to the end of the chunk
+    disassembleChunk(currentChunk(), "code");
     emitReturn();
 }
 
