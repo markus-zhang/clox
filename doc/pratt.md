@@ -14,7 +14,80 @@ The idea of Pratt Parser is:
 - You also have infix operators such as `+`, `-`, `*` and `/`
 - You know the precedence of these operators
 - So the idea is:
-    - 
+
+```Python
+def Compile():
+    # We need two tokens to make decisions
+    previous_token = current_token
+    current_token = GetNextToken()
+
+    ParsePrecedence(PREC_ASSIGNMENT)    # lowest precedence other than PREC_NONE which is for EOF
+
+def ParsePrecedence(prec):
+    # This is where to advance again, because you want to compare precedence in other functions 
+    # We also save the newly acquired current_token so it is not lost/skipped
+    previous_token = current_token
+    current_token = GetNextToken()
+
+    prefix_fp = GetPrefixFunc(previous_token)
+    prefix_fp()
+
+    # Then we keep going to the right until we hit a HIGHER precedence
+    # For example, think 3+4+5/2, we keep going until we hit /
+    # The thing is, at the end of the day, we want to have / at the top of the stack
+    # so we want to "drag" the emit of operators so that they get pushed AFTER the operands get pushed
+
+    # At this point, prec is passed from the previous op, which is already not visible
+    # previous_token should point to the right operands of previous op
+    # current_token should point to the next op
+    while (prec <= GetRecedence(current_token))
+    {
+        previous_token = current_token
+        current_token = GetNextToken()
+
+        infix_fp = GetInfixFunc(previous_token)
+        infix_fp()
+    }
+
+def prefix_fp():
+    # Right now we only have number() or unary() or grouping()
+    if NUMBER:
+        PushConstant(previous_token)
+    elif UNARY:
+        # For unary, should always recursively call ParsePrecedence()
+        # Save the unary operator first
+        op = previous_token.type
+        ParsePrecedence(PREC_UNARY)
+        # Once right side is pushed onto stack, push the operator
+        PushOp(op)
+    elif GROUPING:
+        # We have expressions in () so recursively call ParsePrecedence and start from the lower precedence again
+        ParsePrecedence(PREC_ASSIGNMENT)
+        # Make sure it has a right parenthesis trailing
+        Consume(')')
+
+def infix_fp():
+    # Save the operator first because we need to emit it later
+    op = previous_token.type
+    # Make sure that we recursively call ParsePrecedence() for the RHS with the correct precedence
+    if ADD:
+        ParsePrecedence(PREC_ADD)
+        PushOP(op)
+    elif SUB:
+        ParsePrecedence(PREC_SUB)
+        PushOP(op)
+    elif MUL:
+        ParsePrecedence(PREC_MUL)
+        PushOP(op)
+    elif DIV:
+        ParsePrecedence(PREC_DIV)
+        PushOP(op)
+        
+```
+
+A few key issues:
+- In prefix and infix functions, if it's an operator, then you should always call parsePrecedence() recursively, because the RHS may have more stuffs, and THEN emit the operators -> remember that in a stack (RPN), operator is at the top, like (+ 7 2)
+- Since we are always saving two tokens, previous and current, make sure that you update them properly with advance(), and refernece them properly. Sometimes you need previous and sometimes you need current
 
 Parser uses `advance()` to ask for the next Token, setting precedence to PREC_ASSIGNMENT (This is called from `expression()` into `parsePrecedence()`)
 - `advance()` calls `scanToken()`
