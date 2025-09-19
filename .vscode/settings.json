@@ -55,6 +55,8 @@
         "unordered_map": "cpp",
         "algorithm": "cpp",
         "common.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "compiler.h": "c",
+        "vm.h": "c"
     }
 }

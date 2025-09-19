@@ -19,8 +19,22 @@ void freeVM()
 
 InterpreterResult interpret(const char* source)
 {
-    compile(source);
-    return INTERPRET_OK;
+    Chunk chunk;
+    initChunk(&chunk);
+
+    if (!compile(source, &chunk))
+    {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILER_ERROR;
+    }
+
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk->code;
+
+    InterpreterResult result = run();
+
+    freeChunk(&chunk);
+    return result;
 }
 
 /*
@@ -72,13 +86,25 @@ static InterpreterResult run()
                 *(vm.stackTop - 1) = (*vm.stackTop - 1) * -1;
                 break;
             }
-            /* Binary */
+            /* Binary a op b */
             case OP_ADD:
-            case OP_SUB:
-            case OP_MUL:
-            case OP_DIV:
             {
                 BinaryOP(OP_ADD);
+                break;
+            }
+            case OP_SUB:
+            {
+                BinaryOP(OP_SUB);
+                break;
+            }
+            case OP_MUL:
+            {
+                BinaryOP(OP_MUL);
+                break;
+            }
+            case OP_DIV:
+            {
+                BinaryOP(OP_DIV);
                 break;
             }
         }
@@ -116,8 +142,8 @@ Value peek()
 /* Operations */
 static void BinaryOP(Opcode op)
 {
-    Value leftOperand = pop();
     Value rightOperand = pop();
+    Value leftOperand = pop();
     
     switch(op)
     {
@@ -174,7 +200,7 @@ void DumpStack(DumpTarget target)
         /* The book's version is much better */
         for (Value* index = vm.stack; index < vm.stackTop; index++)
         {
-            printf("Index %d ->", (int)(vm.stackTop - vm.stack));
+            printf("Index %d ->", (int)(index - vm.stack));
             printValue(*(index));
             printf("\n");
         }
