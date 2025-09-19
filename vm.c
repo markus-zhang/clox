@@ -86,13 +86,25 @@ static InterpreterResult run()
                 *(vm.stackTop - 1) = (*vm.stackTop - 1) * -1;
                 break;
             }
-            /* Binary */
+            /* Binary a op b */
             case OP_ADD:
-            case OP_SUB:
-            case OP_MUL:
-            case OP_DIV:
             {
                 BinaryOP(OP_ADD);
+                break;
+            }
+            case OP_SUB:
+            {
+                BinaryOP(OP_SUB);
+                break;
+            }
+            case OP_MUL:
+            {
+                BinaryOP(OP_MUL);
+                break;
+            }
+            case OP_DIV:
+            {
+                BinaryOP(OP_DIV);
                 break;
             }
         }
