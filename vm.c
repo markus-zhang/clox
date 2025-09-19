@@ -142,8 +142,8 @@ Value peek()
 /* Operations */
 static void BinaryOP(Opcode op)
 {
-    Value leftOperand = pop();
     Value rightOperand = pop();
+    Value leftOperand = pop();
     
     switch(op)
     {
@@ -200,7 +200,7 @@ void DumpStack(DumpTarget target)
         /* The book's version is much better */
         for (Value* index = vm.stack; index < vm.stackTop; index++)
         {
-            printf("Index %d ->", (int)(vm.stackTop - vm.stack));
+            printf("Index %d ->", (int)(index - vm.stack));
             printValue(*(index));
             printf("\n");
         }
