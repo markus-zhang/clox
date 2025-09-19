@@ -3,8 +3,9 @@
 
 #include "common.h"
 #include "compiler.h"
-#include "chunk.h"
+#include "scanner.h"
 #include "debug.h"
+
 
 
 typedef struct Parser
@@ -48,6 +49,37 @@ typedef struct
 /* Again we make this global */
 Parser parser;
 Chunk* compilingChunk;
+
+static void advance();
+static void consume(TokenType type, const char* message);
+static void expressions();
+/* Number literal */
+static void number();
+/* Parenthesis Grouping */
+static void grouping();
+/* Unary operators */
+static void unary();
+/* Binary operators */
+static void binary();
+/* Pratt parsing */
+static void parsePrecedence(Precedence precedence);
+static ParseRule* getRule(TokenType type);
+
+//static void consume(TokenType type, const char* message);
+static void endCompiler();
+
+static void errorAtCurrent(const char* message);
+static void errorAt(Token* token, const char* message);
+
+/* Chunk writing functions */
+static void emitByte(uint8_t byte);
+// We have some cases to write two bytes (e.g. push something onto stack, so one byte for PUSH and one byte for value)
+static void emitBytes(uint8_t byte1, uint8_t byte2);
+static void emitReturn();
+
+static void emitConstant(double value);
+static uint16_t getConstantIndex(double value);
+
 
 bool compile(const char* source, Chunk* chunk)
 {
@@ -235,7 +267,7 @@ ParseRule rules[] = {
 static void parsePrecedence(Precedence precedence) 
 {
     advance();
-    ParseFn prefixRule = getRule(parser.previous.type)->prefix;
+    ParseFn prefixRule = (getRule(parser.previous.type))->prefix;
 
     if (prefixRule == NULL)
     {
@@ -245,10 +277,10 @@ static void parsePrecedence(Precedence precedence)
 
     prefixRule();
 
-    while (precedence <= getRule(parser.current.type)->precedence)
+    while (precedence <= (getRule(parser.current.type))->precedence)
     {
         advance();
-        ParseFn infixRule = getRule(parser.previous.type)->infix;
+        ParseFn infixRule = (getRule(parser.previous.type))->infix;
         infixRule();
     }
 }
@@ -322,7 +354,7 @@ static void endCompiler()
     // And we need to return/emit the expression, right?
     // WHY: to print that value, we are temporarily using the OP_RETURN instruction
     // So we have the compiler add one to the end of the chunk
-    disassembleChunk(currentChunk(), "code");
+    disassembleChunk(compilingChunk, "code");
     emitReturn();
 }
 
@@ -359,7 +391,7 @@ static void errorAt(Token* token, const char* message)
 
 static void emitByte(uint8_t byte)
 {
-    writeChunk(currentChunk(), byte, parser.previous.line, parser.previous.offset);
+    writeChunk(compilingChunk, byte, parser.previous.line, parser.previous.offset);
 }
 
 static void emitBytes(uint8_t byte1, uint8_t byte2)
@@ -373,10 +405,16 @@ static void emitReturn()
     emitByte(OP_RETURN);
 }
 
+/* 
+    FIXME: This doesn't work for long constants actually, because it's only writing 2 bytes.
 
+    For long constants, you gotta write 4 bytes (I think, 1 byte for op and 3 bytes for number)
+
+    Temp fix: change OP_CONSTNAT_LONG to OP_CONSTANT
+*/
 static void emitConstant(double value)
 {
-    emitBytes(OP_CONSTANT_LONG, getConstantIndex(value));
+    emitBytes(OP_CONSTANT, getConstantIndex(value));
 }
 
 /* We will only use OP_CONSTANT_LONG */

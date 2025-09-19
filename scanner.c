@@ -63,18 +63,21 @@ Token scanToken()
     }
     /* Note that we increment current pointer immedaitely after the read */
     char firstChar = (char)(*(scanner.current));
-    advance();
-
+    
     /* Check for numericals */
     if (isNumerical(firstChar))
     {
         return processNumerical(offset, line);
     }
-
     /* Check for identifiers and keywords*/
-    if (isAlpha(firstChar))
+    else if (isAlpha(firstChar))
     {
         return processIdent(offset, line);
+    }
+    else
+    {
+        /* Default mode is to advance(), whic processNumerical() and processIdent() already take care of */
+        advance();
     }
 
     switch (firstChar)
