@@ -35,6 +35,15 @@ typedef enum
     // Highest
 } Precedence;
 
+typedef void (*ParseFn)();
+
+typedef struct
+{
+    ParseFn prefix;
+    ParseFn infix;
+    Precedence precedence;
+} ParseRule;
+
 /* Again we make this global */
 Parser parser;
 Chunk* compilingChunk;
@@ -177,6 +186,116 @@ static void unary()
     }
 }
 
+ParseRule rules[] = {
+  [TOKEN_LEFT_PAREN]    = {grouping, NULL,   PREC_NONE},
+  [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_LEFT_BRACE]    = {NULL,     NULL,   PREC_NONE}, 
+  [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_COMMA]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_DOT]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_MINUS]         = {unary,    binary, PREC_TERM},
+  [TOKEN_PLUS]          = {NULL,     binary, PREC_TERM},
+  [TOKEN_SEMICOLON]     = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
+  [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
+  [TOKEN_BANG]          = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_BANG_EQUAL]    = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_EQUAL_EQUAL]   = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_GREATER]       = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_GREATER_EQUAL] = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_LESS]          = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_LESS_EQUAL]    = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_IDENTIFIER]    = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_STRING]        = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
+  [TOKEN_AND]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_CLASS]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_ELSE]          = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_FALSE]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_FOR]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_NIL]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_OR]            = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_SUPER]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_THIS]          = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_TRUE]          = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_VAR]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
+};
+
+static void parsePrecedence(Precedence precedence) 
+{
+  // What goes here?
+}
+
+static ParseRule* getRule(TokenType type)
+{
+    return &rules[type];
+}
+
+static void binary()
+{
+    /* 
+        Something like 1+2,
+        so we first parse the left side, then find a binary operator, and this get called
+        The left operand was taken care by something else e.g. number() already
+    */
+
+    /*
+        PREC_NONE,
+        PREC_ASSIGNMENT,    // =
+        PREC_OR,            // or
+        PREC_AND,           // and
+        PREC_EQUALITY,      // == !=
+        PREC_COMPARISON,    // < > <= >=
+        PREC_TERM,          // + -
+        PREC_FACTOR,        // * /
+        PREC_UNARY,         // - !
+        PREC_CALL,          // . ()
+        PREC_PRIMARY
+    */
+
+    TokenType op = parser.previous.type;
+    ParseRule* rule = getRule(op);
+    parsePrecedence((Precedence)(rule->precedence + 1));
+
+    switch (op)
+    {
+        case TOKEN_PLUS:
+        {
+            emitByte(OP_ADD);
+            break;
+        }
+        case TOKEN_MINUS:
+        {
+            emitByte(OP_SUB);
+            break;
+        }
+        case TOKEN_STAR:
+        {
+            emitByte(OP_MUL);
+            break;
+        }
+        case TOKEN_SLASH:
+        {
+            emitByte(OP_DIV);
+            break;
+        }
+        default:
+        {
+            return;
+        }
+    }
+
+
+}
+
 
 static void endCompiler()
 {
@@ -186,6 +305,17 @@ static void endCompiler()
     // So we have the compiler add one to the end of the chunk
     emitReturn();
 }
+
+static void expression() 
+{
+  // What goes here?
+}
+
+/* Forward declaration */
+
+static void expression();
+static ParseRule* getRule(TokenType type);
+static void parsePrecedence(Precedence precedence);
 
 static void errorAtCurrent(const char* message)
 {

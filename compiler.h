@@ -16,6 +16,8 @@ static void number();
 static void grouping();
 /* Unary operators */
 static void unary();
+/* Binary operators */
+static void binary();
 /* Pratt parsing */
 static void parsePrecedence(Precedence precedence);
 
