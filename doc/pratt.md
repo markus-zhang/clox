@@ -90,10 +90,11 @@ A few key issues:
 - Since we are always saving two tokens, previous and current, make sure that you update them properly with advance(), and refernece them properly. Sometimes you need previous and sometimes you need current
 
 Parser uses `advance()` to ask for the next Token, setting precedence to PREC_ASSIGNMENT (This is called from `expression()` into `parsePrecedence()`)
+
 - `advance()` calls `scanToken()`
 - `previous` = garbage and `current` = 2
 
-    `parsePrecedence()` 
+    - `parsePrecedence()` 
     - calls `advance()` to grab the next Token, so previous is now 2 and current is +
     - calls `prefixRule()`, which is `number()` function
     - `number()` pushes `OP_CONSTANT`, and the value 2 onto `compilingChunk->code`
@@ -110,7 +111,7 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
 
         `binary()` takes the op, which is +. It fetches its precedence and recursively called `parsePrecedence(PREC_TERM)`
 
-            `parsePrecedence()`
+            - `parsePrecedence()`
             - calls `advance()`, so previous is 7 and current is /
             - calls `prefixRule()`, which is `number()`
             - `number()` pushes `OP_CONSTANT`, and the value 7 onto `compilingChunk->code`
@@ -128,7 +129,7 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
 
                 `binary()` takes the op, which is /. It fetches its precedence and calls `parsePrecedence(PREC_FACTOR)`
 
-                    `parsePrecedence()`
+                    - `parsePrecedence()`
                     - calls `advance()`, so previous is 1 and current is EOF
                     - calls `prefixRule()`, which is `number()`
                     - `number()` pushes OP_CONSTANT`, and value 1 onto `compilingChunk->code`
@@ -178,5 +179,5 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
     - `parsePrecedence()` then look at `current`, which is EOF, which has LOWER precedence than `PREC_ASSIGNMENT`
     return to `expression()`
 
-return to `compiler()`, which then consumes EOF (success, as the current token is EOF), then calls `endCompiler()`
+- return to `compiler()`, which then consumes EOF (success, as the current token is EOF), then calls `endCompiler()`
 
