@@ -89,6 +89,7 @@ A few key issues:
 - In prefix and infix functions, if it's an operator, then you should always call parsePrecedence() recursively, because the RHS may have more stuffs, and THEN emit the operators -> remember that in a stack (RPN), operator is at the top, like (+ 7 2)
 - Since we are always saving two tokens, previous and current, make sure that you update them properly with advance(), and refernece them properly. Sometimes you need previous and sometimes you need current
 
+```
 Parser uses `advance()` to ask for the next Token, setting precedence to PREC_ASSIGNMENT (This is called from `expression()` into `parsePrecedence()`)
 
 - `advance()` calls `scanToken()`
@@ -99,10 +100,10 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
     - calls `prefixRule()`, which is `number()` function
     - `number()` pushes `OP_CONSTANT`, and the value 2 onto `compilingChunk->code`
     
-    ```
+    
     Stack   -> 2
             -> OP_CONSTANT
-    ```
+    
 
     - `parsePrecedence()` then look at `current`, which is +, which has higher precedence than `PREC_ASSIGNMENT`
     - calls `advance()` to grab the next Token, so previous is now + and current is 7
@@ -116,12 +117,12 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
             - calls `prefixRule()`, which is `number()`
             - `number()` pushes `OP_CONSTANT`, and the value 7 onto `compilingChunk->code`
 
-            ```
+            
             Stack   -> 7
                     -> OP_CONSTANT
                     -> 2
                     -> OP_CONSTANT
-            ```
+            
 
             - `parsePrecedence()` then look at `current`, which is /, which has higher precedence than `PREC_TERM`
             - call `advance()` to grab the next Token, so previous is / and current is 1
@@ -148,7 +149,7 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
 
                 - emits `OP_SLASH` as op is / in `binary()`
 
-                ```
+                
                 Stack   -> OP_SLASH
                         -> 1
                         -> OP_CONSTANT
@@ -156,15 +157,15 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
                         -> OP_CONSTANT
                         -> 2
                         -> OP_CONSTANT
-                ```
-                return to `parsePrecedence()`
+                
+                - return to `parsePrecedence()`
 
             - `parsePrecedence()` then look at `current`, which is EOF, which has LOWER precedence than `PREC_TERM`
             return to `binary()`
 
         - emits `OP_PLUS` as op is + in `binary()`
 
-        ```
+        
         Stack   -> OP_PLUS
                 -> OP_SLASH
                 -> 1
@@ -173,11 +174,12 @@ Parser uses `advance()` to ask for the next Token, setting precedence to PREC_AS
                 -> OP_CONSTANT
                 -> 2
                 -> OP_CONSTANT
-        ```
-        return to `parsePrecedence()`
+        
+        - return to `parsePrecedence()`
 
     - `parsePrecedence()` then look at `current`, which is EOF, which has LOWER precedence than `PREC_ASSIGNMENT`
     return to `expression()`
 
 - return to `compiler()`, which then consumes EOF (success, as the current token is EOF), then calls `endCompiler()`
 
+```
