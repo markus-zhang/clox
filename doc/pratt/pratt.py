@@ -85,7 +85,8 @@ class Compiler:
             self.prefix(TOKEN_SUB)
         
         # TODO: Figure out a way to match tokenType to precedence, maybe simply add the prec into Token class?
-        while (prec <= self.currentToken.prec???)
+        while prec <= self.currentToken.prec???
+            
 
     def prefix(self, tokenType:int):
         # Parse the next token first (most likely a number or a variable or a function call)
