@@ -42,6 +42,8 @@ class Compiler:
         self.previousToken:Token = Token(-1, '')
         self.currentToken:Token = Token(-1, '')
         self.tokenPointer = 0
+        # emulate the stack
+        self.stack = []
         self.repl()
 
 
@@ -76,8 +78,32 @@ class Compiler:
     def expression(self):
         self.parse_precedence(PREC_ASSIGNMENT)
 
-    def parse_precedence(prec:int):
+    def parse_precedence(self, prec:int):
+        self.advance()
+        # Case 1: Unary minus
+        if self.previousToken.tokenType == TOKEN_SUB:
+            self.prefix(TOKEN_SUB)
         
+        # TODO: Figure out a way to match tokenType to precedence, maybe simply add the prec into Token class?
+        while (prec <= self.currentToken.prec???)
+
+    def prefix(self, tokenType:int):
+        # Parse the next token first (most likely a number or a variable or a function call)
+        self.parse_precedence(PREC_UNARY)
+        # We always want to append the operator last (top of stack)
+        if tokenType == tokenType:
+            self.stack.append('-')
+
+    def infix(self, tokenType:int):
+        # The only infix rule is binary, but different op has different prec so we need to put everything into if-elif-else
+        # Unlike in prefix() we can call parse_precendence() immediately
+        if tokenType == TOKEN_ADD:
+            self.parse_precedence(PREC_TERM + 1)
+            self.stack.append('+')
+        elif tokenType == TOKEN_SUB:
+            self.parse_precedence(PREC_TERM + 1)
+            self.stack.append('-')
+
     
 
 
