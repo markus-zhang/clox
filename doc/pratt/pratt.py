@@ -14,6 +14,7 @@
 """
 
 # Precedence
+PREC_EOF            = -1
 PREC_NONE           = 0
 PREC_ASSIGNMENT     = 1
 PREC_TERM           = 2 # +-
@@ -30,21 +31,25 @@ TOKEN_STR           = 5
 TOKEN_EOF           = 6
 
 class Token:
-    def __init__(self, tokenType:int, lexeme:str):
+    def __init__(self, tokenType:int, lexeme:str, prec:int):
         self.tokenType = tokenType
         self.lexeme = lexeme
+        # Only for operators
+        self.prec = prec
 
 
 class Compiler:
     def __init__(self):
         self.sourceCode:str = ''
         self.tokens:list = []
-        self.previousToken:Token = Token(-1, '')
-        self.currentToken:Token = Token(-1, '')
+        self.previousToken:Token = Token(-1, '', PREC_NONE)
+        self.currentToken:Token = Token(-1, '', PREC_NONE)
         self.tokenPointer = 0
         # emulate the stack
         self.stack = []
-        self.repl()
+        # self.repl()
+        self.compile()
+        print(self.stack)
 
 
     def repl(self):
@@ -58,7 +63,16 @@ class Compiler:
 
 
     def compile(self):
-        self.tokens:list = self.tokenizer(self.sourceCode)
+        # self.tokens:list = self.tokenizer(self.sourceCode)
+        # Let's hardcode something first
+        self.tokens:list[Token] = [
+            Token(TOKEN_NUM, '1', PREC_NONE), 
+            Token(TOKEN_ADD, '+', PREC_TERM), 
+            Token(TOKEN_NUM, '3', PREC_NONE),
+            Token(TOKEN_NUM, '/', PREC_FACTOR),
+            Token(TOKEN_NUM, '2', PREC_NONE),
+            Token(TOKEN_EOF, '', PREC_EOF)
+        ]
         self.advance()
         self.expression()
         self.consume(TOKEN_EOF, "Expect end of expression")
@@ -81,18 +95,22 @@ class Compiler:
     def parse_precedence(self, prec:int):
         self.advance()
         # Case 1: Unary minus
+        print(self.previousToken)
         if self.previousToken.tokenType == TOKEN_SUB:
             self.prefix(TOKEN_SUB)
         
         # TODO: Figure out a way to match tokenType to precedence, maybe simply add the prec into Token class?
-        while prec <= self.currentToken.prec???
+        # NOTE: Actually, why do we need two tokens? Why can't we simply track the current token? 
+        while prec <= self.currentToken.prec:
+            self.advance()
+            self.infix(self.previousToken.prec)
             
 
     def prefix(self, tokenType:int):
         # Parse the next token first (most likely a number or a variable or a function call)
         self.parse_precedence(PREC_UNARY)
         # We always want to append the operator last (top of stack)
-        if tokenType == tokenType:
+        if tokenType == TOKEN_SUB:
             self.stack.append('-')
 
     def infix(self, tokenType:int):
@@ -106,11 +124,13 @@ class Compiler:
             self.stack.append('-')
 
     
-
-
-def tokenizer(sourceCode:str)->list:
-    # Lazy so just split on WS
-    return sourceCode.split()
+    def tokenizer(self)->list:
+        # Lazy so just split on WS
+        split = self.sourceCode.split()
+        prec = PREC_NONE
+        for s in split:
+            if s in ('+', '-'):
+                pass
 
 if __name__ == '__main__':
     compiler = Compiler()
